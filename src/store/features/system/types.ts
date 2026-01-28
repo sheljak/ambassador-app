@@ -1,34 +1,17 @@
-import type { User, UserPermissions } from '../shared/types';
+import type { User } from '../../types_that_will_used';
 
+/**
+ * Account type - extends User with app-specific settings
+ * Note: The API returns User type, we extend it locally for app state
+ */
 export interface Account extends User {
-    token?: string;
-    refreshToken?: string;
-    isVerified: boolean;
-    isOnboarded: boolean;
-    settings: AccountSettings;
+  settings?: AccountSettings;
 }
 
 export interface AccountSettings {
-    notificationsEnabled: boolean;
-    emailNotifications: boolean;
-    pushNotifications: boolean;
-    theme: 'light' | 'dark' | 'system';
-    language: string;
-}
-
-export interface LoginRequest {
-    email: string;
-    password: string;
-}
-
-export interface LoginResponse {
-    user: Account;
-    token: string;
-    refreshToken: string;
-}
-
-export interface GetAccountInfoRequest {}
-
-export interface GetAccountInfoResponse {
-    account: Account;
+  notificationsEnabled?: boolean;
+  emailNotifications?: boolean;
+  pushNotifications?: boolean;
+  theme?: 'light' | 'dark' | 'system';
+  language?: string;
 }

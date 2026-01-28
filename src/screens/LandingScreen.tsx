@@ -1,30 +1,48 @@
-import { StyleSheet, Pressable } from 'react-native';
+import { StyleSheet, Pressable, View } from 'react-native';
 import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
-import { useTheme, useResponsive } from '@/theme';
+import { useTheme } from '@/theme';
 
 export function LandingScreen() {
   const { colors, spacing, shapes } = useTheme();
-  const { responsive } = useResponsive();
+  const insets = useSafeAreaInsets();
 
   const handleGetStarted = () => {
-    router.push('/(tabs)');
+    router.push('/sign-in' as any);
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedView style={styles.content}>
+    <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={styles.content}>
+        <View style={styles.logoContainer}>
+          <View
+            style={[
+              styles.logoPlaceholder,
+              {
+                backgroundColor: colors.interactive.default,
+                borderRadius: shapes.radius['2xl'],
+              },
+            ]}
+          >
+            <ThemedText style={[styles.logoText, { color: colors.text.inverse }]}>
+              A
+            </ThemedText>
+          </View>
+        </View>
+
         <ThemedText type="title" style={styles.title}>
           Welcome to Ambassador
         </ThemedText>
-        <ThemedText style={styles.subtitle}>
-          Your journey starts here
-        </ThemedText>
-      </ThemedView>
 
-      <ThemedView style={styles.buttonContainer}>
+        <ThemedText style={[styles.subtitle, { color: colors.text.secondary }]}>
+          Connect, share, and grow with your community
+        </ThemedText>
+      </View>
+
+      <View style={[styles.buttonContainer, { paddingBottom: insets.bottom + spacing.lg }]}>
         <Pressable
           style={({ pressed }) => [
             styles.button,
@@ -34,18 +52,15 @@ export function LandingScreen() {
                 : colors.interactive.default,
               borderRadius: shapes.radius.lg,
               paddingVertical: spacing.md,
-              paddingHorizontal: responsive({ sm: spacing.xl, md: spacing['2xl'] }),
             },
           ]}
           onPress={handleGetStarted}
         >
-          <ThemedText
-            style={[styles.buttonText, { color: colors.text.inverse }]}
-          >
+          <ThemedText style={[styles.buttonText, { color: colors.text.inverse }]}>
             Get Started
           </ThemedText>
         </Pressable>
-      </ThemedView>
+      </View>
     </ThemedView>
   );
 }
@@ -53,8 +68,6 @@ export function LandingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   content: {
     flex: 1,
@@ -62,18 +75,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 24,
   },
+  logoContainer: {
+    marginBottom: 32,
+  },
+  logoPlaceholder: {
+    width: 100,
+    height: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoText: {
+    fontSize: 48,
+    fontWeight: 'bold',
+  },
   title: {
     textAlign: 'center',
     marginBottom: 12,
   },
   subtitle: {
     textAlign: 'center',
-    opacity: 0.7,
+    fontSize: 16,
+    lineHeight: 24,
   },
   buttonContainer: {
     width: '100%',
     paddingHorizontal: 24,
-    paddingBottom: 48,
   },
   button: {
     alignItems: 'center',
