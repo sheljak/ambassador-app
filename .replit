@@ -5,6 +5,7 @@ language = "nodejs"
 # Use LAN mode (works with Replit port forwarding)
 # For device connection, use Replit's port forwarding feature
 run = "npm start"
+modules = ["nodejs-20", "nix"]
 
 [deploy]
 run = ["sh", "-c", "npm start"]
@@ -21,3 +22,33 @@ languageServer = { start = "typescript-language-server --stdio" }
 
 [languages.typescript]
 languageServer = { start = "typescript-language-server --stdio" }
+
+[nix]
+channel = "stable-25_05"
+
+[[ports]]
+localPort = 8081
+externalPort = 80
+
+[workflows]
+
+[[workflows.workflow]]
+name = "Update packages"
+mode = "sequential"
+author = 53802457
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow]]
+name = "Commit to main"
+mode = "sequential"
+author = 53802457
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./git-sync.sh main"
+
+[agent]
+expertMode = true
