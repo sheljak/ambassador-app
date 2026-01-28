@@ -13,8 +13,8 @@ run = ["sh", "-c", "npm start"]
 NODE_ENV = "development"
 EXPO_PUBLIC_ENABLE_STATIC_RENDERING = "false"
 
-[nix]
-channel = "stable-24_11"
+# Using Replit's default Node.js environment
+# No nix configuration needed - Replit has Node.js pre-installed
 
 [languages.javascript]
 languageServer = { start = "typescript-language-server --stdio" }

@@ -1,162 +1,50 @@
-# Ambassador App
+# Welcome to your Expo app 👋
 
-A React Native Expo application built with Expo Router, Redux Toolkit, and TypeScript.
+This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-## Getting Started
+## Get started
 
-### Prerequisites
+1. Install dependencies
 
-- Node.js 20.x or higher
-- npm or yarn
-- For device testing: Expo Go app installed on your iOS/Android device
+   ```bash
+   npm install
+   ```
 
-### Installation
+2. Start the app
+
+   ```bash
+   npx expo start
+   ```
+
+In the output, you'll find options to open the app in a
+
+- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
+- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
+- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+
+You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+
+## Get a fresh project
+
+When you're ready, run:
 
 ```bash
-npm install
-# or
-yarn install
+npm run reset-project
 ```
 
-## Running the App
+This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-### On Replit
+## Learn more
 
-The app uses LAN mode by default (tunnel mode often times out on Replit).
+To learn more about developing your project with Expo, look at the following resources:
 
-**Option 1: Using Replit Port Forwarding (Recommended)**
-1. Click the "Run" button or run `npm start`
-2. Wait for the Expo dev server to start (usually on port 8081)
-3. In Replit, look for the port forwarding section or use the "Open in Browser" feature
-4. Copy the forwarded URL (e.g., `https://your-repl.repl.co`)
-5. In Expo Go app, manually enter the connection URL: `exp://your-repl.repl.co:8081`
+- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
+- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
-**Option 2: Try Smart Start (Auto-fallback)**
-```bash
-npm run start:smart
-```
-This tries tunnel mode first, then falls back to LAN if it fails.
+## Join the community
 
-**Option 3: Force Tunnel Mode**
-```bash
-npm run start:tunnel
-```
-Note: This may timeout on Replit due to network restrictions.
+Join our community of developers creating universal apps.
 
-### Running Locally
-
-#### On Device (LAN Mode - Default)
-```bash
-npm start
-# or
-npm run start:lan
-```
-Uses your local network. Works best when device and computer are on the same Wi-Fi.
-
-#### On Device (Tunnel Mode - Works from anywhere)
-```bash
-npm run start:tunnel
-```
-Uses Expo's tunnel service. May timeout on Replit - use `npm run start:smart` for auto-fallback.
-
-#### Web Browser
-```bash
-npm run start:web
-# or
-npm run web
-```
-
-#### iOS Simulator
-```bash
-npm run ios
-```
-
-#### Android Emulator
-```bash
-npm run android
-```
-
-## Connecting Your Device
-
-1. **Install Expo Go** on your device:
-   - [iOS App Store](https://apps.apple.com/app/expo-go/id982107779)
-   - [Google Play Store](https://play.google.com/store/apps/details?id=host.exp.exponent)
-
-2. **Start the dev server** with `npm start`
-
-3. **Scan the QR code**:
-   - **iOS**: Open Camera app and tap the notification
-   - **Android**: Open Expo Go app and tap "Scan QR code"
-
-4. The app will load on your device!
-
-## Project Structure
-
-```
-├── app/                    # Expo Router pages
-│   ├── _layout.tsx        # Root layout
-│   └── (tabs)/            # Tab navigation screens
-├── components/            # Reusable UI components
-├── constants/             # App constants (colors, fonts)
-├── hooks/                 # Custom React hooks
-├── store/                 # Redux store and API layer
-│   ├── api/              # API client and endpoints
-│   ├── features/         # Feature-specific types
-│   ├── hooks/            # Store-related hooks
-│   └── slices/           # Redux slices
-└── assets/               # Static assets
-```
-
-## Features
-
-- ✅ Expo Router for file-based routing
-- ✅ Redux Toolkit for state management
-- ✅ TypeScript for type safety
-- ✅ Web-compatible React Native components
-- ✅ Responsive design
-- ✅ Dark/Light theme support
-- ✅ Device connection via tunnel mode
-
-## Development
-
-### Linting
-```bash
-npm run lint
-```
-
-### Testing
-```bash
-npm test
-```
-
-### Clear Cache
-```bash
-npm run start:clear
-```
-
-## Environment Configuration
-
-The app supports multiple API environments (DEV, STAGE, PROD). See `store/settings.ts` for configuration.
-
-## Troubleshooting
-
-### ngrok tunnel timeout error
-- **On Replit**: Use LAN mode (`npm start`) instead of tunnel mode
-- Use Replit's port forwarding feature to expose the dev server
-- Or try `npm run start:smart` which auto-falls back to LAN mode
-
-### Device won't connect
-- **On Replit**: Use port forwarding and manually enter the URL in Expo Go
-- Make sure your device has internet access
-- Try restarting the dev server with `npm run start:clear`
-- Check that the port (usually 8081) is accessible
-
-### QR code not appearing
-- Make sure the dev server is fully started
-- Check the console for any error messages
-- Try running `npm run start:clear` to clear the cache
-- On Replit, you may need to manually enter the connection URL in Expo Go
-
-## License
-
-Private project
+- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
+- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
