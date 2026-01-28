@@ -25,7 +25,7 @@ export const dialogsApi = baseApi.injectEndpoints({
         if (search) params.search = search;
 
         return {
-          url: '/v1/application/dialogs',
+          url: 'v1/application/dialogs',
           params,
         };
       },
@@ -43,7 +43,7 @@ export const dialogsApi = baseApi.injectEndpoints({
 
     // Get dialog info
     getDialog: builder.query<GetDialogInfo.Response, number>({
-      query: (dialogId) => `/v1/application/dialogs/${dialogId}`,
+      query: (dialogId) => `v1/application/dialogs/${dialogId}`,
       providesTags: (result, error, dialogId) => [{ type: 'Dialogs', id: dialogId }],
     }),
 
@@ -59,7 +59,7 @@ export const dialogsApi = baseApi.injectEndpoints({
         if (aroundMessageId) params.aroundMessageId = aroundMessageId;
 
         return {
-          url: `/v1/application/dialogs/${dialog_id}/messages`,
+          url: `v1/application/dialogs/${dialog_id}/messages`,
           params,
         };
       },
@@ -71,7 +71,7 @@ export const dialogsApi = baseApi.injectEndpoints({
     // Send message
     sendMessage: builder.mutation<SendMessage.Response, SendMessage.Request>({
       query: ({ dialog_id, ...data }) => ({
-        url: `/v1/application/dialogs/${dialog_id}/messages/send`,
+        url: `v1/application/dialogs/${dialog_id}/messages/send`,
         method: 'POST',
         body: data,
       }),
@@ -85,7 +85,7 @@ export const dialogsApi = baseApi.injectEndpoints({
     // Create dialog (start chat)
     createDialog: builder.mutation<CreateDialog.Response, CreateDialog.Request>({
       query: (data) => ({
-        url: '/v1/application/dialogs/create',
+        url: 'v1/application/dialogs/create',
         method: 'POST',
         body: data,
       }),
@@ -95,7 +95,7 @@ export const dialogsApi = baseApi.injectEndpoints({
     // Mark messages as viewed
     viewMessages: builder.mutation<ViewMessages.Response, ViewMessages.Request>({
       query: ({ dialog_id, message_ids }) => ({
-        url: `/v1/application/dialogs/${dialog_id}/messages/view`,
+        url: `v1/application/dialogs/${dialog_id}/messages/view`,
         method: 'POST',
         body: { message_ids },
       }),
@@ -107,7 +107,7 @@ export const dialogsApi = baseApi.injectEndpoints({
     // Toggle archive dialog
     toggleArchiveDialog: builder.mutation<ToggleDialogArchive.Response, ToggleDialogArchive.Request>({
       query: ({ dialog_id, socketId }) => ({
-        url: `/v1/application/dialogs/${dialog_id}/archive/toggle`,
+        url: `v1/application/dialogs/${dialog_id}/archive/toggle`,
         method: 'PUT',
         body: socketId ? { socketId } : undefined,
       }),
@@ -120,7 +120,7 @@ export const dialogsApi = baseApi.injectEndpoints({
     // Report dialog
     reportDialog: builder.mutation<ReportDialog.Response, ReportDialog.Request>({
       query: ({ dialog_id, reported_reason }) => ({
-        url: `/v1/application/dialogs/${dialog_id}/report`,
+        url: `v1/application/dialogs/${dialog_id}/report`,
         method: 'PUT',
         body: { reported_reason },
       }),

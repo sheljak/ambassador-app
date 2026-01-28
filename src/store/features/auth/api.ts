@@ -11,7 +11,7 @@ export const authApi = baseApi.injectEndpoints({
     // Login
     login: builder.mutation<Login.Response, Login.Request>({
       query: (credentials) => ({
-        url: '/v1/application/auth/login',
+        url: 'v1/application/auth/login',
         method: 'POST',
         body: credentials,
       }),
@@ -21,7 +21,7 @@ export const authApi = baseApi.injectEndpoints({
     // Logout
     logout: builder.mutation<Logout.Response, Logout.Request>({
       query: () => ({
-        url: '/v1/application/auth/logout',
+        url: 'v1/application/auth/logout',
         method: 'POST',
       }),
       invalidatesTags: ['Account', 'Profile', 'Dialogs', 'Feeds'],
@@ -29,14 +29,14 @@ export const authApi = baseApi.injectEndpoints({
 
     // Get account info
     getAccount: builder.query<GetAccountInfo.Response, void>({
-      query: () => '/v1/application/account/info',
+      query: () => 'v1/application/account/info',
       providesTags: ['Account'],
     }),
 
     // Update account
     updateAccount: builder.mutation<UpdateAccount.Response, UpdateAccount.Request>({
       query: (data) => ({
-        url: '/v1/application/account/update',
+        url: 'v1/application/account/update',
         method: 'PUT',
         body: data,
       }),

@@ -11,7 +11,7 @@ export const feedsApi = baseApi.injectEndpoints({
     // Get feeds
     getFeeds: builder.query<GetFeed.Response, GetFeed.Request>({
       query: ({ type = 'all', offset = 0, limit = 10 }) => ({
-        url: `/v1/application/feed/${type}`,
+        url: `v1/application/feed/${type}`,
         params: { offset, limit },
       }),
       providesTags: (result) =>
@@ -28,14 +28,14 @@ export const feedsApi = baseApi.injectEndpoints({
 
     // Get single feed item
     getFeedItem: builder.query<{ success: boolean; data: FeedPost }, number>({
-      query: (id) => `/v1/application/posts/${id}`,
+      query: (id) => `v1/application/posts/${id}`,
       providesTags: (result, error, id) => [{ type: 'Feeds', id }],
     }),
 
     // Create post
     createPost: builder.mutation<CreateFeedPost.Response, CreateFeedPost.Request>({
       query: (data) => ({
-        url: '/v1/application/posts/create',
+        url: 'v1/application/posts/create',
         method: 'POST',
         body: data,
       }),
@@ -48,7 +48,7 @@ export const feedsApi = baseApi.injectEndpoints({
       UpdateFeedPost.Request
     >({
       query: ({ postId, ...data }) => ({
-        url: `/v1/application/posts/update/${postId}`,
+        url: `v1/application/posts/update/${postId}`,
         method: 'PUT',
         body: data,
       }),
