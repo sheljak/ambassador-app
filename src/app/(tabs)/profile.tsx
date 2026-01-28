@@ -17,13 +17,15 @@ export default function ProfileScreen() {
 
   return (
     <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Header */}
+      <View style={[styles.header, { borderBottomColor: colors.border.default }]}>
+        <ThemedText type="title">Profile</ThemedText>
+      </View>
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
       >
-        <ThemedView style={styles.header}>
-          <ThemedText type="title">Profile</ThemedText>
-        </ThemedView>
 
         {/* Profile Avatar */}
         <View style={styles.avatarContainer}>
@@ -111,7 +113,9 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   header: {
-    marginBottom: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
   },
   avatarContainer: {
     alignItems: 'center',

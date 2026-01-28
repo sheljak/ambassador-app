@@ -1,4 +1,4 @@
-import { StyleSheet, ScrollView } from 'react-native';
+import { StyleSheet, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedView } from '@/components/ThemedView';
@@ -11,16 +11,15 @@ export default function NotificationsScreen() {
 
   return (
     <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Header */}
+      <View style={[styles.header, { borderBottomColor: colors.border.default }]}>
+        <ThemedText type="title">Notifications</ThemedText>
+      </View>
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
       >
-        <ThemedView style={styles.header}>
-          <ThemedText type="title">Notifications</ThemedText>
-          <ThemedText style={{ color: colors.text.secondary }}>
-            Stay informed about activity
-          </ThemedText>
-        </ThemedView>
 
         {/* Placeholder notifications */}
         {[1, 2, 3].map((item) => (
@@ -69,7 +68,9 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   header: {
-    marginBottom: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
   },
   notificationItem: {
     padding: 16,

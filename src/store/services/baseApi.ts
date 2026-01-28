@@ -96,6 +96,7 @@ export const baseApi = createApi({
     'Messages',
     'Feeds',
     'Notifications',
+    'Leaderboard',
   ],
   endpoints: () => ({}),
 });

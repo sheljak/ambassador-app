@@ -1,4 +1,4 @@
-import { StyleSheet, ScrollView } from 'react-native';
+import { StyleSheet, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedView } from '@/components/ThemedView';
@@ -11,16 +11,15 @@ export default function MessagesScreen() {
 
   return (
     <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Header */}
+      <View style={[styles.header, { borderBottomColor: colors.border.default }]}>
+        <ThemedText type="title">Messages</ThemedText>
+      </View>
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
       >
-        <ThemedView style={styles.header}>
-          <ThemedText type="title">Messages</ThemedText>
-          <ThemedText style={{ color: colors.text.secondary }}>
-            Your conversations
-          </ThemedText>
-        </ThemedView>
 
         {/* Placeholder message items */}
         {[1, 2, 3].map((item) => (
@@ -64,7 +63,9 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   header: {
-    marginBottom: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
   },
   messageItem: {
     padding: 16,

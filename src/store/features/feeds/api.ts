@@ -15,11 +15,11 @@ export const feedsApi = baseApi.injectEndpoints({
         params: { offset, limit },
       }),
       providesTags: (result) =>
-        result?.data?.data
+        result?.data?.feed
           ? [
-              ...result.data.data.map(({ id }) => ({
+              ...result.data.feed.map((item) => ({
                 type: 'Feeds' as const,
-                id,
+                id: item.id,
               })),
               { type: 'Feeds', id: 'LIST' },
             ]

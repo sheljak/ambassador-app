@@ -9,6 +9,7 @@ import { baseApi, baseApiV2 } from './services/baseApi';
 import { authReducer } from './features/auth';
 import { feedsReducer } from './features/feeds';
 import { dialogsReducer } from './features/dialogs';
+import { leaderboardReducer } from './features/leaderboard';
 
 export const store = configureStore({
   reducer: {
@@ -20,6 +21,7 @@ export const store = configureStore({
     auth: authReducer,
     feeds: feedsReducer,
     dialogs: dialogsReducer,
+    leaderboard: leaderboardReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -108,6 +110,20 @@ export {
   SLICE_KEY as DIALOGS_SLICE_KEY,
 } from './features/dialogs';
 
+export {
+  leaderboardReducer,
+  useGetLeaderboardQuery,
+  useLazyGetLeaderboardQuery,
+  leaderboardSelectors,
+  setLeaderboardData,
+  setCurrentAmbassador,
+  appendNextLeaders,
+  setLoading as setLeaderboardLoading,
+  setError as setLeaderboardError,
+  resetLeaderboard,
+  SLICE_KEY as LEADERBOARD_SLICE_KEY,
+} from './features/leaderboard';
+
 // Export types from main types file
 export type {
   User,
@@ -119,4 +135,5 @@ export type {
   ApiResponse,
   PaginatedResponse,
   PaginationMeta,
+  LeaderboardAmbassador,
 } from './types_that_will_used';

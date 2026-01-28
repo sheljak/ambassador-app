@@ -704,7 +704,13 @@ export namespace GetFeed {
         limit?: number;
     }
 
-    export type Response = ApiResponse<PaginatedResponse<FeedPost>>;
+    // Actual API response structure
+    export interface FeedData {
+        feed: FeedPost[];
+        total: number;
+    }
+
+    export type Response = ApiResponse<FeedData>;
 }
 
 /**
@@ -738,16 +744,81 @@ export namespace UpdateFeedPost {
 }
 
 /**
+ * Feed post content
+ */
+export interface FeedContent {
+    text?: string;
+    caption?: string;
+    media_type?: 'image' | 'video';
+    media_url?: string;
+    thumbnail_url?: string;
+}
+
+/**
+ * Feed post extra data
+ */
+export interface FeedExtraData {
+    prospect?: {
+        id: number;
+        name?: string;
+    };
+    ambassadors?: Array<{
+        id: number;
+        name?: string;
+        avatar?: string;
+    }>;
+    question?: string;
+    answer?: string;
+    dialog?: Dialog;
+    user?: {
+        name?: string;
+    };
+    post?: {
+        id: number;
+        caption?: string;
+        images?: Image[];
+        videos?: Array<{
+            original?: string;
+            thumbnails?: {
+                midpoint?: string;
+            };
+        }>;
+    };
+}
+
+/**
+ * Feed type key for rendering different feed item types
+ */
+export type FeedTypeKey =
+    | 'started_conversation'
+    | 'image'
+    | 'video'
+    | 'new_faq_question'
+    | 'new_faq_answered'
+    | 'system'
+    | 'ambassador_card'
+    | 'top_month'
+    | 'notification';
+
+/**
  * Feed post structure
  */
 export interface FeedPost {
     id: number;
-    type_key?: string;
-    content?: string;
+    type: string;
+    type_key?: FeedTypeKey;
+    action_type?: string;
+    content?: FeedContent | string;
+    text?: string;
     user?: User;
     created_at?: string;
     updated_at?: string;
-    [key: string]: unknown;
+    likes_count?: number;
+    comments_count?: number;
+    is_liked?: boolean;
+    is_pinned?: boolean;
+    media?: Image[];
+    extraData?: FeedExtraData;
 }
 
 // ============================================================================
@@ -1663,6 +1734,44 @@ export type EndpointResponseType<T extends keyof typeof ENDPOINTS> = unknown;
  *   }
  * };
  */
+
+// ============================================================================
+// LEADERBOARD ENDPOINTS
+// ============================================================================
+
+/**
+ * Leaderboard ambassador data
+ */
+export interface LeaderboardAmbassador {
+    id: number;
+    name: string;
+    last_name: string;
+    introduction?: string;
+    description?: string;
+    user_points: number;
+    index: number;
+    avatar?: string;
+    user_tags?: UserTags;
+    isCurrentAmbassador?: boolean;
+}
+
+/**
+ * GET /v1/application/leaderboard
+ * Get leaderboard data
+ */
+export namespace GetLeaderboard {
+    export interface Request {
+        offset?: number;
+        limit?: number;
+    }
+
+    export interface LeaderboardData {
+        total: number;
+        ambassadorData: LeaderboardAmbassador[];
+    }
+
+    export type Response = ApiResponse<LeaderboardData>;
+}
 
 // ============================================================================
 // ENDPOINT STATISTICS

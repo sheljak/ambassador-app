@@ -15,6 +15,7 @@ import {
   setAuthLoading,
   setAuthError,
   logout as logoutAction,
+  baseApi,
 } from '@/store';
 import { FingerprintService } from '@/services/fingerprint';
 import { AuthStorageService } from '@/services/authStorage';
@@ -107,6 +108,8 @@ export function useAuth() {
     await AuthStorageService.clearCredentials();
     // Clear fingerprint on logout
     await FingerprintService.clearFingerprint();
+    // Reset RTK Query cache to prevent stale API calls
+    dispatch(baseApi.util.resetApiState());
     // Clear Redux state
     dispatch(logoutAction());
     ToastService.info('You have been signed out', 'Signed Out');
