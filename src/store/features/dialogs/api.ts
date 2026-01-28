@@ -43,7 +43,7 @@ export const dialogsApi = baseApi.injectEndpoints({
 
     // Get dialog info
     getDialog: builder.query<GetDialogInfo.Response, number>({
-      query: (dialogId) => ({ url: `/v1/application/dialogs/${dialogId}` }),
+      query: (dialogId) => `/v1/application/dialogs/${dialogId}`,
       providesTags: (result, error, dialogId) => [{ type: 'Dialogs', id: dialogId }],
     }),
 

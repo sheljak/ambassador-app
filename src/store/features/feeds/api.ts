@@ -28,7 +28,7 @@ export const feedsApi = baseApi.injectEndpoints({
 
     // Get single feed item
     getFeedItem: builder.query<{ success: boolean; data: FeedPost }, number>({
-      query: (id) => ({ url: `/v1/application/posts/${id}` }),
+      query: (id) => `/v1/application/posts/${id}`,
       providesTags: (result, error, id) => [{ type: 'Feeds', id }],
     }),
 

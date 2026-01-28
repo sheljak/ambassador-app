@@ -1,61 +1,94 @@
-import { createApi, BaseQueryFn } from '@reduxjs/toolkit/query/react';
-import axios, { AxiosRequestConfig, AxiosError } from 'axios';
+import {
+  createApi,
+  fetchBaseQuery,
+  retry,
+  BaseQueryFn,
+  FetchArgs,
+  FetchBaseQueryError,
+} from '@reduxjs/toolkit/query/react';
 import { getBackendUrl, getBackendUrlV2 } from '../settings';
 import type { RootState } from '../index';
 
-// Axios base query for RTK Query
-const axiosBaseQuery =
-  (
-    { baseUrl }: { baseUrl: string }
-  ): BaseQueryFn<
-    {
-      url: string;
-      method?: AxiosRequestConfig['method'];
-      body?: AxiosRequestConfig['data'];
-      params?: AxiosRequestConfig['params'];
-    },
-    unknown,
-    unknown
-  > =>
-  async ({ url, method = 'GET', body, params }, api) => {
-    try {
-      // Get token from Redux state
-      const token = (api.getState() as RootState).auth.token;
+interface RefreshTokenResponse {
+  token: string;
+  refreshToken: string;
+}
 
-      const result = await axios({
-        url: baseUrl + url,
-        method,
-        data: body,
-        params,
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+// Base query that reads token from Redux state
+const baseQueryWithAuth = fetchBaseQuery({
+  baseUrl: getBackendUrl(),
+  prepareHeaders: (headers, { getState }) => {
+    // Get token from Redux store (in memory)
+    const token = (getState() as RootState).auth.token;
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+    return headers;
+  },
+});
+
+// Add retry logic (retry once on failure)
+const baseQueryWithRetry = retry(baseQueryWithAuth, { maxRetries: 1 });
+
+// Base query with token refresh
+const baseQueryWithReauth: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+  let result = await baseQueryWithRetry(args, api, extraOptions);
+
+  if (result.error && result.error.status === 401) {
+    // Get refresh token from Redux state
+    const state = api.getState() as RootState;
+    const refreshToken = state.auth.refreshToken;
+
+    if (refreshToken) {
+      // Try to refresh token
+      const refreshResult = await baseQueryWithRetry(
+        {
+          url: '/auth/refreshTokens',
+          method: 'POST',
+          body: { refreshToken },
         },
-      });
+        api,
+        extraOptions
+      );
 
-      return { data: result.data };
-    } catch (axiosError) {
-      const err = axiosError as AxiosError;
+      if (
+        refreshResult.data &&
+        typeof refreshResult.data === 'object' &&
+        'token' in refreshResult.data
+      ) {
+        // Update token in Redux store
+        const refreshData = refreshResult.data as RefreshTokenResponse;
+        api.dispatch({
+          type: 'auth/setToken',
+          payload: {
+            token: refreshData.token,
+            refreshToken: refreshData.refreshToken,
+          },
+        });
 
-      // Handle 401 - logout user
-      if (err.response?.status === 401) {
+        // Retry original query
+        result = await baseQueryWithRetry(args, api, extraOptions);
+      } else {
+        // Logout user
         api.dispatch({ type: 'auth/logout' });
       }
-
-      return {
-        error: {
-          status: err.response?.status,
-          data: err.response?.data || err.message,
-        },
-      };
+    } else {
+      // No refresh token, logout
+      api.dispatch({ type: 'auth/logout' });
     }
-  };
+  }
 
-// Create base API with Axios
+  return result;
+};
+
+// Create base API
 export const baseApi = createApi({
   reducerPath: 'api',
-  baseQuery: axiosBaseQuery({ baseUrl: getBackendUrl() }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: [
     'Account',
     'Profile',
@@ -67,10 +100,19 @@ export const baseApi = createApi({
   endpoints: () => ({}),
 });
 
-// V2 API
+// V2 API (separate base URL) - also reads from Redux
 export const baseApiV2 = createApi({
   reducerPath: 'apiV2',
-  baseQuery: axiosBaseQuery({ baseUrl: getBackendUrlV2() }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: getBackendUrlV2(),
+    prepareHeaders: (headers, { getState }) => {
+      const token = (getState() as RootState).auth.token;
+      if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
+      }
+      return headers;
+    },
+  }),
   tagTypes: ['Privacy', 'Blocking'],
   endpoints: () => ({}),
 });
