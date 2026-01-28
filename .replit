@@ -51,5 +51,14 @@ author = 53802457
 task = "shell.exec"
 args = "./git-sync.sh main"
 
+[[workflows.workflow]]
+name = "Start"
+mode = "parallel"
+author = 53802457
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm start"
+
 [agent]
 expertMode = true
