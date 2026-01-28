@@ -1,7 +1,7 @@
-import React, { useMemo, useState, useCallback } from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
-import ImageViewing from 'react-native-image-viewing';
+import Lightbox from 'react-native-lightbox-v2';
 
 import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/theme';
@@ -10,7 +10,6 @@ import type { BaseFeedProps } from './types';
 
 const ImageFeed: React.FC<BaseFeedProps> = ({ data }) => {
   const { colors, shapes, palette } = useTheme();
-  const [isViewerVisible, setIsViewerVisible] = useState(false);
 
   // Extract image from extraData.post.images or media
   const { previewUrl, fullUrl } = useMemo(() => {
@@ -46,41 +45,39 @@ const ImageFeed: React.FC<BaseFeedProps> = ({ data }) => {
     return null;
   }, [data.extraData, data.content]);
 
-  const handleOpenViewer = useCallback(() => {
-    setIsViewerVisible(true);
-  }, []);
-
-  const handleCloseViewer = useCallback(() => {
-    setIsViewerVisible(false);
-  }, []);
-
   if (!previewUrl) {
     return null;
   }
 
-  const images = fullUrl ? [{ uri: fullUrl }] : [];
+  const imageSource = fullUrl || previewUrl;
 
   return (
     <FeedCard data={data} label="Photo" labelColor={palette.info[500]}>
       <View style={styles.imageContainer}>
-        <Pressable
-          onPress={handleOpenViewer}
-          style={({ pressed }) => [
-            styles.pressable,
-            { opacity: pressed ? 0.8 : 1 },
-          ]}
+        <Lightbox
+          springConfig={{ tension: 300, friction: 30 }}
+          swipeToDismiss={true}
         >
-          <Image
-            source={{ uri: previewUrl }}
-            style={[styles.image, { borderRadius: shapes.radius.md }]}
-            contentFit="cover"
-            transition={200}
-          />
-          {/* Tap hint overlay */}
-          <View style={[styles.tapHint, { borderRadius: shapes.radius.md }]}>
-            <ThemedText style={styles.tapHintText}>Tap to view</ThemedText>
+          <View style={styles.pressable}>
+            <Image
+              source={{ uri: previewUrl }}
+              style={[styles.image, { borderRadius: shapes.radius.md }]}
+              contentFit="cover"
+              transition={200}
+            />
+            {/* Tap hint overlay */}
+            <View style={[styles.tapHint, { borderRadius: shapes.radius.md }]}>
+              <ThemedText style={styles.tapHintText}>Tap to view</ThemedText>
+            </View>
           </View>
-        </Pressable>
+          <View style={styles.lightboxContent}>
+            <Image
+              source={{ uri: imageSource }}
+              style={styles.fullImage}
+              contentFit="contain"
+            />
+          </View>
+        </Lightbox>
       </View>
 
       {caption && (
@@ -88,16 +85,6 @@ const ImageFeed: React.FC<BaseFeedProps> = ({ data }) => {
           {caption}
         </ThemedText>
       )}
-
-      {/* Fullscreen Image Viewer */}
-      <ImageViewing
-        images={images}
-        imageIndex={0}
-        visible={isViewerVisible}
-        onRequestClose={handleCloseViewer}
-        swipeToCloseEnabled
-        doubleTapToZoomEnabled
-      />
     </FeedCard>
   );
 };
@@ -128,6 +115,15 @@ const styles = StyleSheet.create({
   caption: {
     fontSize: 14,
     lineHeight: 20,
+  },
+  lightboxContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fullImage: {
+    width: '100%',
+    height: '100%',
   },
 });
 
