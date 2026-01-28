@@ -4,15 +4,16 @@ language = "nodejs"
 
 # Use LAN mode (works with Replit port forwarding)
 # For device connection, use Replit's port forwarding feature
-run = "npm start"
+run = "npx expo start --tunnel"
 modules = ["nodejs-20", "nix"]
 
 [deploy]
-run = ["sh", "-c", "npm start"]
+run = ["sh", "-c", "npx expo start --tunnel"]
 
 [env]
 NODE_ENV = "development"
 EXPO_PUBLIC_ENABLE_STATIC_RENDERING = "false"
+EXPO_TUNNEL_TIMEOUT = "120000"
 
 # Using Replit's default Node.js environment
 # No nix configuration needed - Replit has Node.js pre-installed
