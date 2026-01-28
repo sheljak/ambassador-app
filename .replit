@@ -1,0 +1,23 @@
+# Replit configuration for Expo React Native app
+
+language = "nodejs"
+
+# Use LAN mode (works with Replit port forwarding)
+# For device connection, use Replit's port forwarding feature
+run = "npm start"
+
+[deploy]
+run = ["sh", "-c", "npm start"]
+
+[env]
+NODE_ENV = "development"
+EXPO_PUBLIC_ENABLE_STATIC_RENDERING = "false"
+
+[nix]
+channel = "stable-24_11"
+
+[languages.javascript]
+languageServer = { start = "typescript-language-server --stdio" }
+
+[languages.typescript]
+languageServer = { start = "typescript-language-server --stdio" }
