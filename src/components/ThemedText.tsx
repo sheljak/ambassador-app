@@ -1,6 +1,6 @@
 import { StyleSheet, Text, type TextProps } from 'react-native';
 
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { useTheme, textPresets, palette } from '@/theme';
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
@@ -15,7 +15,11 @@ export function ThemedText({
   type = 'default',
   ...rest
 }: ThemedTextProps) {
-  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+  const { colors, colorScheme } = useTheme();
+
+  // Allow explicit color overrides
+  const colorFromProps = colorScheme === 'dark' ? darkColor : lightColor;
+  const color = colorFromProps ?? colors.text.primary;
 
   return (
     <Text
@@ -35,26 +39,26 @@ export function ThemedText({
 
 const styles = StyleSheet.create({
   default: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: textPresets.body.fontSize,
+    lineHeight: textPresets.body.lineHeight,
   },
   defaultSemiBold: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: textPresets.body.fontSize,
+    lineHeight: textPresets.body.lineHeight,
     fontWeight: '600',
   },
   title: {
-    fontSize: 32,
+    fontSize: textPresets.heading2.fontSize,
     fontWeight: 'bold',
-    lineHeight: 32,
+    lineHeight: textPresets.heading2.lineHeight,
   },
   subtitle: {
-    fontSize: 20,
+    fontSize: textPresets.heading3.fontSize,
     fontWeight: 'bold',
   },
   link: {
     lineHeight: 30,
-    fontSize: 16,
-    color: '#0a7ea4',
+    fontSize: textPresets.body.fontSize,
+    color: palette.primary[500],
   },
 });
