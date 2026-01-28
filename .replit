@@ -29,3 +29,23 @@ channel = "stable-25_05"
 [[ports]]
 localPort = 8081
 externalPort = 80
+
+[workflows]
+
+[[workflows.workflow]]
+name = "Update packages"
+mode = "sequential"
+author = 53802457
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow]]
+name = "Commit to main"
+mode = "sequential"
+author = 53802457
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./git-sync.sh main"
