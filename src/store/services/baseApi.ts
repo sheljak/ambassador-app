@@ -1,96 +1,61 @@
-import {
-  createApi,
-  fetchBaseQuery,
-  retry,
-  BaseQueryFn,
-  FetchArgs,
-  FetchBaseQueryError,
-} from '@reduxjs/toolkit/query/react';
+import { createApi, BaseQueryFn } from '@reduxjs/toolkit/query/react';
+import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 import { getBackendUrl, getBackendUrlV2 } from '../settings';
 import type { RootState } from '../index';
 
-interface RefreshTokenResponse {
-  token: string;
-  refreshToken: string;
-}
+// Axios base query for RTK Query
+const axiosBaseQuery =
+  (
+    { baseUrl }: { baseUrl: string }
+  ): BaseQueryFn<
+    {
+      url: string;
+      method?: AxiosRequestConfig['method'];
+      body?: AxiosRequestConfig['data'];
+      params?: AxiosRequestConfig['params'];
+    },
+    unknown,
+    unknown
+  > =>
+  async ({ url, method = 'GET', body, params }, api) => {
+    try {
+      // Get token from Redux state
+      const token = (api.getState() as RootState).auth.token;
 
-// Base query that reads token from Redux state
-const baseQueryWithAuth = fetchBaseQuery({
-  baseUrl: getBackendUrl(),
-  prepareHeaders: (headers, { getState }) => {
-    // Get token from Redux store (in memory)
-    const token = (getState() as RootState).auth.token;
-    if (token) {
-      headers.set('Authorization', `Bearer ${token}`);
-    }
-    headers.set('Accept', 'application/json');
-    headers.set('Content-Type', 'application/json');
-    return headers;
-  },
-});
-
-// Add retry logic (retry once on failure)
-const baseQueryWithRetry = retry(baseQueryWithAuth, { maxRetries: 1 });
-
-// Base query with token refresh
-const baseQueryWithReauth: BaseQueryFn<
-  string | FetchArgs,
-  unknown,
-  FetchBaseQueryError
-> = async (args, api, extraOptions) => {
-  let result = await baseQueryWithRetry(args, api, extraOptions);
-
-  if (result.error && result.error.status === 401) {
-    // Get refresh token from Redux state
-    const state = api.getState() as RootState;
-    const refreshToken = state.auth.refreshToken;
-
-    if (refreshToken) {
-      // Try to refresh token
-      const refreshResult = await baseQueryWithRetry(
-        {
-          url: '/auth/refreshTokens',
-          method: 'POST',
-          body: { refreshToken },
+      const result = await axios({
+        url: baseUrl + url,
+        method,
+        data: body,
+        params,
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        api,
-        extraOptions
-      );
+      });
 
-      if (
-        refreshResult.data &&
-        typeof refreshResult.data === 'object' &&
-        'token' in refreshResult.data
-      ) {
-        // Update token in Redux store
-        const refreshData = refreshResult.data as RefreshTokenResponse;
-        api.dispatch({
-          type: 'auth/setToken',
-          payload: {
-            token: refreshData.token,
-            refreshToken: refreshData.refreshToken,
-          },
-        });
+      return { data: result.data };
+    } catch (axiosError) {
+      const err = axiosError as AxiosError;
 
-        // Retry original query
-        result = await baseQueryWithRetry(args, api, extraOptions);
-      } else {
-        // Logout user
+      // Handle 401 - logout user
+      if (err.response?.status === 401) {
         api.dispatch({ type: 'auth/logout' });
       }
-    } else {
-      // No refresh token, logout
-      api.dispatch({ type: 'auth/logout' });
+
+      return {
+        error: {
+          status: err.response?.status,
+          data: err.response?.data || err.message,
+        },
+      };
     }
-  }
+  };
 
-  return result;
-};
-
-// Create base API
+// Create base API with Axios
 export const baseApi = createApi({
   reducerPath: 'api',
-  baseQuery: baseQueryWithReauth,
+  baseQuery: axiosBaseQuery({ baseUrl: getBackendUrl() }),
   tagTypes: [
     'Account',
     'Profile',
@@ -102,21 +67,10 @@ export const baseApi = createApi({
   endpoints: () => ({}),
 });
 
-// V2 API (separate base URL) - also reads from Redux
+// V2 API
 export const baseApiV2 = createApi({
   reducerPath: 'apiV2',
-  baseQuery: fetchBaseQuery({
-    baseUrl: getBackendUrlV2(),
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.token;
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
-      }
-      headers.set('Accept', 'application/json');
-      headers.set('Content-Type', 'application/json');
-      return headers;
-    },
-  }),
+  baseQuery: axiosBaseQuery({ baseUrl: getBackendUrlV2() }),
   tagTypes: ['Privacy', 'Blocking'],
   endpoints: () => ({}),
 });

@@ -29,7 +29,7 @@ export const authApi = baseApi.injectEndpoints({
 
     // Get account info
     getAccount: builder.query<GetAccountInfo.Response, void>({
-      query: () => '/v1/application/account/info',
+      query: () => ({ url: '/v1/application/account/info' }),
       providesTags: ['Account'],
     }),
 
