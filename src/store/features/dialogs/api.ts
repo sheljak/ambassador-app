@@ -17,28 +17,33 @@ export const dialogsApi = baseApi.injectEndpoints({
     // Get dialogs list
     getDialogs: builder.query<GetDialogs.Response, Partial<GetDialogs.Request>>({
       query: ({ offset = 0, limit = 20, types, search } = {}) => {
-        const params: Record<string, unknown> = {
-          offset,
-          limit,
-        };
-        if (types) params.types = types;
-        if (search) params.search = search;
+        // Build query string manually to serialize types[] correctly
+        const searchParams = new URLSearchParams();
+        searchParams.append('offset', String(offset));
+        searchParams.append('limit', String(limit));
+
+        if (types) {
+          const typesArray = Array.isArray(types) ? types : types.split(',');
+          typesArray.forEach(t => searchParams.append('types[]', t));
+        }
+        if (search) searchParams.append('search', search);
 
         return {
-          url: 'v1/application/dialogs',
-          params,
+          url: `v1/application/dialogs?${searchParams.toString()}`,
         };
       },
-      providesTags: (result) =>
-        result?.data?.data
+      providesTags: (result) => {
+        const dialogs = result?.data?.dialogs ?? result?.data?.data ?? [];
+        return dialogs.length > 0
           ? [
-              ...result.data.data.map((dialog: Dialog) => ({
+              ...dialogs.map((dialog: Dialog) => ({
                 type: 'Dialogs' as const,
-                id: dialog.id,
+                id: dialog.dialog_id || dialog.id,
               })),
               { type: 'Dialogs', id: 'LIST' },
             ]
-          : [{ type: 'Dialogs', id: 'LIST' }],
+          : [{ type: 'Dialogs', id: 'LIST' }];
+      },
     }),
 
     // Get dialog info

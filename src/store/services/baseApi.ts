@@ -1,18 +1,24 @@
 import {
   createApi,
   fetchBaseQuery,
-  retry,
   BaseQueryFn,
   FetchArgs,
   FetchBaseQueryError,
 } from '@reduxjs/toolkit/query/react';
 import { getBackendUrl, getBackendUrlV2 } from '../settings';
+import { FingerprintService } from '@/services/fingerprint';
 import type { RootState } from '../index';
+import { Mutex } from 'async-mutex';
 
 interface RefreshTokenResponse {
-  token: string;
-  refreshToken: string;
+  success: boolean;
+  data: {
+    token: string;
+  };
 }
+
+// Mutex to prevent multiple simultaneous refresh requests
+const mutex = new Mutex();
 
 // Base query that reads token from Redux state
 const baseQueryWithAuth = fetchBaseQuery({
@@ -27,8 +33,6 @@ const baseQueryWithAuth = fetchBaseQuery({
   },
 });
 
-// Add retry logic (retry once on failure)
-const baseQueryWithRetry = retry(baseQueryWithAuth, { maxRetries: 1 });
 
 // Base query with token refresh
 const baseQueryWithReauth: BaseQueryFn<
@@ -36,49 +40,64 @@ const baseQueryWithReauth: BaseQueryFn<
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
-  let result = await baseQueryWithRetry(args, api, extraOptions);
+  // Wait if another refresh is in progress
+  await mutex.waitForUnlock();
+
+  let result = await baseQueryWithAuth(args, api, extraOptions);
 
   if (result.error && result.error.status === 401) {
-    // Get refresh token from Redux state
-    const state = api.getState() as RootState;
-    const refreshToken = state.auth.refreshToken;
+    // Check if we should try to refresh
+    if (!mutex.isLocked()) {
+      const release = await mutex.acquire();
 
-    if (refreshToken) {
-      // Try to refresh token
-      const refreshResult = await baseQueryWithRetry(
-        {
-          url: 'auth/refreshTokens',
-          method: 'POST',
-          body: { refreshToken },
-        },
-        api,
-        extraOptions
-      );
+      try {
+        // Get current token from Redux state
+        const state = api.getState() as RootState;
+        const token = state.auth.token;
 
-      if (
-        refreshResult.data &&
-        typeof refreshResult.data === 'object' &&
-        'token' in refreshResult.data
-      ) {
-        // Update token in Redux store
-        const refreshData = refreshResult.data as RefreshTokenResponse;
-        api.dispatch({
-          type: 'auth/setToken',
-          payload: {
-            token: refreshData.token,
-            refreshToken: refreshData.refreshToken,
-          },
-        });
+        if (token) {
+          // Get fingerprint for refresh request
+          const fingerprint = await FingerprintService.getFingerprint();
 
-        // Retry original query
-        result = await baseQueryWithRetry(args, api, extraOptions);
-      } else {
-        // Logout user
-        api.dispatch({ type: 'auth/logout' });
+          // Try to refresh token using the current token (like old repo does)
+          const refreshResult = await baseQueryWithAuth(
+            {
+              url: 'v1/application/auth/refreshTokens',
+              method: 'POST',
+              body: { token, fingerprint },
+            },
+            api,
+            extraOptions
+          );
+
+          const refreshData = refreshResult.data as RefreshTokenResponse | undefined;
+
+          if (refreshData?.success && refreshData?.data?.token) {
+            // Update token in Redux store
+            api.dispatch({
+              type: 'auth/setToken',
+              payload: {
+                token: refreshData.data.token,
+              },
+            });
+
+            // Retry original query with new token
+            result = await baseQueryWithAuth(args, api, extraOptions);
+          } else {
+            // Refresh failed, logout user
+            api.dispatch({ type: 'auth/logout' });
+          }
+        } else {
+          // No token, logout
+          api.dispatch({ type: 'auth/logout' });
+        }
+      } finally {
+        release();
       }
     } else {
-      // No refresh token, logout
-      api.dispatch({ type: 'auth/logout' });
+      // Another refresh is in progress, wait for it and retry
+      await mutex.waitForUnlock();
+      result = await baseQueryWithAuth(args, api, extraOptions);
     }
   }
 

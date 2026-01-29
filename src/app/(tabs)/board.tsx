@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef, memo } from 'react';
 import {
   StyleSheet,
   View,
@@ -6,7 +6,7 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
-import type { ListRenderItem } from 'react-native';
+import type { ListRenderItemInfo } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { useSelector } from 'react-redux';
@@ -19,7 +19,210 @@ import { prepareSubjectInfo } from '@/helpers/common';
 import type { LeaderboardAmbassador } from '@/store/types_that_will_used';
 import type { RootState } from '@/store';
 
-const LEADERBOARD_LIMIT = 20;
+const LEADERBOARD_LIMIT = 200; // API returns all at once
+const DISPLAY_BATCH = 20; // Show items in batches for smooth scrolling
+const ITEM_HEIGHT = 72; // Fixed height for getItemLayout
+
+// Memoized Ambassador Card Component
+interface AmbassadorCardProps {
+  item: LeaderboardAmbassador;
+  colors: any;
+  shapes: any;
+  palette: any;
+}
+
+const AmbassadorCard = memo<AmbassadorCardProps>(({ item, colors, shapes, palette }) => {
+  const subjectInfo = prepareSubjectInfo(item);
+
+  return (
+    <View
+      style={[
+        styles.ambassadorCard,
+        {
+          backgroundColor: colors.background.secondary,
+          borderRadius: shapes.radius.md,
+          borderWidth: 1,
+          borderColor: item.isCurrentAmbassador
+            ? palette.primary[500]
+            : colors.border.default,
+        },
+      ]}
+    >
+      <View
+        style={[
+          styles.ambassadorRank,
+          {
+            backgroundColor: item.isCurrentAmbassador
+              ? palette.primary[500]
+              : palette.neutral[200],
+          },
+        ]}
+      >
+        <ThemedText
+          style={[
+            styles.ambassadorRankText,
+            {
+              color: item.isCurrentAmbassador ? '#FFFFFF' : colors.text.primary,
+            },
+          ]}
+        >
+          {item.index}
+        </ThemedText>
+      </View>
+      {item.avatar ? (
+        <Image
+          source={{ uri: item.avatar }}
+          style={styles.ambassadorAvatar}
+          recyclingKey={`avatar-${item.id}`}
+        />
+      ) : (
+        <View
+          style={[
+            styles.ambassadorAvatar,
+            styles.ambassadorAvatarPlaceholder,
+            { backgroundColor: palette.primary[100] },
+          ]}
+        >
+          <ThemedText style={{ color: palette.primary[600], fontSize: 14 }}>
+            {item.name?.charAt(0).toUpperCase() || '?'}
+          </ThemedText>
+        </View>
+      )}
+      <View style={styles.ambassadorInfo}>
+        <ThemedText
+          style={[styles.ambassadorName, { color: colors.text.primary }]}
+          numberOfLines={1}
+        >
+          {item.name} {item.last_name}
+        </ThemedText>
+        {subjectInfo ? (
+          <ThemedText
+            style={[styles.ambassadorSubject, { color: colors.text.secondary }]}
+            numberOfLines={1}
+          >
+            {subjectInfo}
+          </ThemedText>
+        ) : null}
+      </View>
+      <ThemedText style={[styles.ambassadorPoints, { color: palette.primary[500] }]}>
+        {item.user_points}
+      </ThemedText>
+    </View>
+  );
+});
+
+AmbassadorCard.displayName = 'AmbassadorCard';
+
+// Memoized Leader Card Component
+interface LeaderCardProps {
+  ambassador: LeaderboardAmbassador;
+  isFirst: boolean;
+  colors: any;
+  palette: any;
+}
+
+const LeaderCard = memo<LeaderCardProps>(({ ambassador, isFirst, colors, palette }) => {
+  const avatarSize = isFirst ? 80 : 64;
+  const badgeSize = isFirst ? 28 : 24;
+  const marginTop = isFirst ? 0 : 24;
+  const subjectInfo = prepareSubjectInfo(ambassador);
+
+  const badgeColor =
+    ambassador.index === 1
+      ? '#FFD700'
+      : ambassador.index === 2
+      ? '#C0C0C0'
+      : '#CD7F32';
+
+  return (
+    <View style={[styles.leaderContainer, { marginTop }]}>
+      <ThemedText
+        style={[
+          styles.pointsText,
+          { color: palette.primary[500], fontSize: isFirst ? 18 : 14 },
+        ]}
+      >
+        {ambassador.user_points}
+      </ThemedText>
+      <View style={[styles.avatarContainer, { width: avatarSize, height: avatarSize }]}>
+        {ambassador.avatar ? (
+          <Image
+            source={{ uri: ambassador.avatar }}
+            style={[
+              styles.avatar,
+              {
+                width: avatarSize,
+                height: avatarSize,
+                borderRadius: avatarSize / 2,
+                borderColor: isFirst ? palette.primary[500] : colors.border.default,
+                borderWidth: isFirst ? 3 : 2,
+              },
+            ]}
+            recyclingKey={`leader-${ambassador.id}`}
+          />
+        ) : (
+          <View
+            style={[
+              styles.avatarPlaceholder,
+              {
+                width: avatarSize,
+                height: avatarSize,
+                borderRadius: avatarSize / 2,
+                backgroundColor: palette.primary[100],
+              },
+            ]}
+          >
+            <ThemedText
+              style={[
+                styles.avatarInitial,
+                { color: palette.primary[600], fontSize: isFirst ? 28 : 22 },
+              ]}
+            >
+              {ambassador.name?.charAt(0).toUpperCase() || '?'}
+            </ThemedText>
+          </View>
+        )}
+        <View
+          style={[
+            styles.rankBadge,
+            {
+              width: badgeSize,
+              height: badgeSize,
+              borderRadius: badgeSize / 2,
+              backgroundColor: badgeColor,
+            },
+          ]}
+        >
+          <ThemedText style={styles.rankText}>{ambassador.index}</ThemedText>
+        </View>
+      </View>
+      <ThemedText
+        style={[
+          styles.leaderName,
+          {
+            color: ambassador.isCurrentAmbassador
+              ? palette.primary[500]
+              : colors.text.primary,
+            fontSize: isFirst ? 14 : 12,
+          },
+        ]}
+        numberOfLines={1}
+      >
+        {ambassador.name}
+      </ThemedText>
+      {subjectInfo ? (
+        <ThemedText
+          style={[styles.subjectText, { color: colors.text.secondary }]}
+          numberOfLines={1}
+        >
+          {subjectInfo}
+        </ThemedText>
+      ) : null}
+    </View>
+  );
+});
+
+LeaderCard.displayName = 'LeaderCard';
 
 export default function LeaderboardScreen() {
   const { colors, shapes, palette } = useTheme();
@@ -73,7 +276,6 @@ export default function LeaderboardScreen() {
           } else {
             // Top 3 leaders
             const top3 = marked.filter((amb) => amb.index <= 3);
-            // Sort so index 2 is first, then 1, then 3 (for podium layout)
             const sortedTop3 = [
               top3.find((a) => a.index === 2),
               top3.find((a) => a.index === 1),
@@ -125,193 +327,31 @@ export default function LeaderboardScreen() {
     }
   }, [isLoading, isFetching, nextLeaders.length, total, offset, loadLeaderboard]);
 
-  // Render top 3 leader
-  const renderLeader = useCallback(
-    (ambassador: LeaderboardAmbassador, isFirst: boolean) => {
-      const avatarSize = isFirst ? 80 : 64;
-      const badgeSize = isFirst ? 28 : 24;
-      const marginTop = isFirst ? 0 : 24;
-
-      return (
-        <View
-          key={ambassador.id}
-          style={[styles.leaderContainer, { marginTop }]}
-        >
-          <ThemedText
-            style={[
-              styles.pointsText,
-              { color: palette.primary[500], fontSize: isFirst ? 18 : 14 },
-            ]}
-          >
-            {ambassador.user_points}
-          </ThemedText>
-          <View style={[styles.avatarContainer, { width: avatarSize, height: avatarSize }]}>
-            {ambassador.avatar ? (
-              <Image
-                source={{ uri: ambassador.avatar }}
-                style={[
-                  styles.avatar,
-                  {
-                    width: avatarSize,
-                    height: avatarSize,
-                    borderRadius: avatarSize / 2,
-                    borderColor: isFirst ? palette.primary[500] : colors.border.default,
-                    borderWidth: isFirst ? 3 : 2,
-                  },
-                ]}
-              />
-            ) : (
-              <View
-                style={[
-                  styles.avatarPlaceholder,
-                  {
-                    width: avatarSize,
-                    height: avatarSize,
-                    borderRadius: avatarSize / 2,
-                    backgroundColor: palette.primary[100],
-                  },
-                ]}
-              >
-                <ThemedText
-                  style={[
-                    styles.avatarInitial,
-                    { color: palette.primary[600], fontSize: isFirst ? 28 : 22 },
-                  ]}
-                >
-                  {ambassador.name?.charAt(0).toUpperCase() || '?'}
-                </ThemedText>
-              </View>
-            )}
-            <View
-              style={[
-                styles.rankBadge,
-                {
-                  width: badgeSize,
-                  height: badgeSize,
-                  borderRadius: badgeSize / 2,
-                  backgroundColor:
-                    ambassador.index === 1
-                      ? '#FFD700'
-                      : ambassador.index === 2
-                      ? '#C0C0C0'
-                      : '#CD7F32',
-                },
-              ]}
-            >
-              <ThemedText style={styles.rankText}>{ambassador.index}</ThemedText>
-            </View>
-          </View>
-          <ThemedText
-            style={[
-              styles.leaderName,
-              {
-                color: ambassador.isCurrentAmbassador
-                  ? palette.primary[500]
-                  : colors.text.primary,
-                fontSize: isFirst ? 14 : 12,
-              },
-            ]}
-            numberOfLines={1}
-          >
-            {ambassador.name}
-          </ThemedText>
-          {prepareSubjectInfo(ambassador) ? (
-            <ThemedText
-              style={[styles.subjectText, { color: colors.text.secondary }]}
-              numberOfLines={1}
-            >
-              {prepareSubjectInfo(ambassador)}
-            </ThemedText>
-          ) : null}
-        </View>
-      );
-    },
-    [colors, palette]
-  );
-
-  // Render ambassador card for the list
-  const renderAmbassadorCard: ListRenderItem<LeaderboardAmbassador> = useCallback(
-    ({ item, index }) => {
-      return (
-        <View
-          style={[
-            styles.ambassadorCard,
-            {
-              backgroundColor: colors.background.secondary,
-              borderRadius: shapes.radius.md,
-              borderWidth: 1,
-              borderColor: item.isCurrentAmbassador
-                ? palette.primary[500]
-                : colors.border.default,
-            },
-          ]}
-        >
-          <View
-            style={[
-              styles.ambassadorRank,
-              {
-                backgroundColor: item.isCurrentAmbassador
-                  ? palette.primary[500]
-                  : palette.neutral[200],
-              },
-            ]}
-          >
-            <ThemedText
-              style={[
-                styles.ambassadorRankText,
-                {
-                  color: item.isCurrentAmbassador ? '#FFFFFF' : colors.text.primary,
-                },
-              ]}
-            >
-              {item.index}
-            </ThemedText>
-          </View>
-          {item.avatar ? (
-            <Image
-              source={{ uri: item.avatar }}
-              style={[styles.ambassadorAvatar, { borderRadius: 20 }]}
-            />
-          ) : (
-            <View
-              style={[
-                styles.ambassadorAvatar,
-                styles.ambassadorAvatarPlaceholder,
-                { backgroundColor: palette.primary[100], borderRadius: 20 },
-              ]}
-            >
-              <ThemedText style={{ color: palette.primary[600], fontSize: 14 }}>
-                {item.name?.charAt(0).toUpperCase() || '?'}
-              </ThemedText>
-            </View>
-          )}
-          <View style={styles.ambassadorInfo}>
-            <ThemedText
-              style={[styles.ambassadorName, { color: colors.text.primary }]}
-              numberOfLines={1}
-            >
-              {item.name} {item.last_name}
-            </ThemedText>
-            {prepareSubjectInfo(item) ? (
-              <ThemedText
-                style={[styles.ambassadorSubject, { color: colors.text.secondary }]}
-                numberOfLines={1}
-              >
-                {prepareSubjectInfo(item)}
-              </ThemedText>
-            ) : null}
-          </View>
-          <ThemedText style={[styles.ambassadorPoints, { color: palette.primary[500] }]}>
-            {item.user_points}
-          </ThemedText>
-        </View>
-      );
-    },
+  // Render item - memoized
+  const renderItem = useCallback(
+    ({ item }: ListRenderItemInfo<LeaderboardAmbassador>) => (
+      <AmbassadorCard
+        item={item}
+        colors={colors}
+        shapes={shapes}
+        palette={palette}
+      />
+    ),
     [colors, shapes, palette]
   );
 
   // Key extractor
   const keyExtractor = useCallback((item: LeaderboardAmbassador) => String(item.id), []);
+
+  // Get item layout for fixed height items
+  const getItemLayout = useCallback(
+    (_: any, index: number) => ({
+      length: ITEM_HEIGHT,
+      offset: ITEM_HEIGHT * index,
+      index,
+    }),
+    []
+  );
 
   // List header with top 3
   const ListHeader = useMemo(() => {
@@ -319,28 +359,46 @@ export default function LeaderboardScreen() {
       return null;
     }
 
-    // Get leaders by position (layout: 2nd, 1st, 3rd)
     const secondPlace = leaders.find((l) => l.index === 2);
     const firstPlace = leaders.find((l) => l.index === 1);
     const thirdPlace = leaders.find((l) => l.index === 3);
 
     return (
       <View>
-        {/* Top 3 Leaders */}
         {leaders.length > 0 && (
           <View style={styles.leadersContainer}>
-            {secondPlace && renderLeader(secondPlace, false)}
-            {firstPlace && renderLeader(firstPlace, true)}
-            {thirdPlace && renderLeader(thirdPlace, false)}
+            {secondPlace && (
+              <LeaderCard
+                ambassador={secondPlace}
+                isFirst={false}
+                colors={colors}
+                palette={palette}
+              />
+            )}
+            {firstPlace && (
+              <LeaderCard
+                ambassador={firstPlace}
+                isFirst={true}
+                colors={colors}
+                palette={palette}
+              />
+            )}
+            {thirdPlace && (
+              <LeaderCard
+                ambassador={thirdPlace}
+                isFirst={false}
+                colors={colors}
+                palette={palette}
+              />
+            )}
           </View>
         )}
       </View>
     );
-  }, [leaders, isLoading, renderLeader]);
+  }, [leaders, isLoading, colors, palette]);
 
   // List footer
-  const ListFooter = useCallback(() => {
-    // Show current ambassador if they're outside the visible list
+  const ListFooter = useMemo(() => {
     const showCurrentAmbassador =
       currentAmbassador &&
       currentAmbassador.index > 3 &&
@@ -351,15 +409,12 @@ export default function LeaderboardScreen() {
         {showCurrentAmbassador && (
           <View style={styles.currentAmbassadorSection}>
             <View style={[styles.divider, { backgroundColor: colors.border.default }]} />
-            {renderAmbassadorCard({
-              item: currentAmbassador,
-              index: 0,
-              separators: {
-                highlight: () => {},
-                unhighlight: () => {},
-                updateProps: () => {},
-              },
-            })}
+            <AmbassadorCard
+              item={currentAmbassador}
+              colors={colors}
+              shapes={shapes}
+              palette={palette}
+            />
           </View>
         )}
         {isFetching && nextLeaders.length > 0 && (
@@ -369,10 +424,10 @@ export default function LeaderboardScreen() {
         )}
       </>
     );
-  }, [currentAmbassador, nextLeaders, isFetching, colors, palette, renderAmbassadorCard]);
+  }, [currentAmbassador, nextLeaders, isFetching, colors, shapes, palette]);
 
   // Empty state
-  const ListEmpty = useCallback(() => {
+  const ListEmpty = useMemo(() => {
     if (isLoading) {
       return (
         <View style={styles.emptyContainer}>
@@ -383,7 +438,7 @@ export default function LeaderboardScreen() {
 
     return (
       <View style={styles.emptyContainer}>
-        <ThemedText style={[styles.emptyEmoji]}>🏆</ThemedText>
+        <ThemedText style={styles.emptyEmoji}>🏆</ThemedText>
         <ThemedText style={[styles.emptyText, { color: colors.text.secondary }]}>
           No leaderboard data available yet.
         </ThemedText>
@@ -400,8 +455,9 @@ export default function LeaderboardScreen() {
 
       <FlatList
         data={nextLeaders}
-        renderItem={renderAmbassadorCard}
+        renderItem={renderItem}
         keyExtractor={keyExtractor}
+        getItemLayout={getItemLayout}
         ListHeaderComponent={ListHeader}
         ListFooterComponent={ListFooter}
         ListEmptyComponent={leaders.length === 0 ? ListEmpty : null}
@@ -415,10 +471,14 @@ export default function LeaderboardScreen() {
           />
         }
         onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.5}
+        onEndReachedThreshold={0.3}
         showsVerticalScrollIndicator={false}
-        initialNumToRender={10}
+        // Performance optimizations
+        initialNumToRender={15}
         maxToRenderPerBatch={10}
+        windowSize={5}
+        removeClippedSubviews={true}
+        updateCellsBatchingPeriod={50}
       />
     </ThemedView>
   );
@@ -432,10 +492,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
-  },
-  titleContainer: {
-    paddingVertical: 16,
-    alignItems: 'center',
   },
   leadersContainer: {
     flexDirection: 'row',
@@ -501,6 +557,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 12,
     marginBottom: 8,
+    height: ITEM_HEIGHT,
   },
   ambassadorRank: {
     width: 32,
@@ -517,6 +574,7 @@ const styles = StyleSheet.create({
   ambassadorAvatar: {
     width: 40,
     height: 40,
+    borderRadius: 20,
     marginRight: 12,
   },
   ambassadorAvatarPlaceholder: {

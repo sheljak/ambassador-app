@@ -833,11 +833,19 @@ export namespace GetDialogs {
     export interface Request {
         offset?: number;
         limit?: number;
-        types?: string;
+        types?: string[] | string;
         search?: string;
     }
 
-    export type Response = ApiResponse<PaginatedResponse<Dialog>>;
+    export interface DialogsData {
+        dialogs: Dialog[];
+        total: number;
+        // Fallback for paginated format
+        data?: Dialog[];
+        meta?: PaginationMeta;
+    }
+
+    export type Response = ApiResponse<DialogsData>;
 }
 
 /**
@@ -1040,12 +1048,53 @@ export namespace BlockToggleUser {
  */
 export interface Dialog {
     id: number;
+    dialog_id?: number;
+    dialog_name?: string;
+    dialog_type_key?: DialogTypeKey;
+    dialog_last_activity?: string;
+    dialog_closed?: boolean;
+    dialog_reported?: boolean;
     name?: string;
     type?: string;
     last_message?: Message;
     participants?: User[];
+    members?: DialogMember[];
+    avatar?: Image;
+    color?: string;
+    description?: string;
+    new_messages?: number;
+    is_enabled?: boolean;
+    is_feedback_required?: boolean;
+    is_broadcast_channel?: boolean;
+    prospect_name?: string;
+    prospect_id?: number;
+    isProspectBlocked?: boolean;
+    content_request_type?: string;
+    live_event_status?: string;
+    live_event_status_name?: string;
+    live_event_from_date?: string;
     [key: string]: unknown;
 }
+
+export interface DialogMember {
+    id: number;
+    name?: string;
+    avatar?: Image;
+    role_key?: string;
+}
+
+export type DialogTypeKey =
+    | 'chat'
+    | 'group-chat'
+    | 'content-group'
+    | 'faq'
+    | 'live-stream-chat'
+    | 'live-event-speakers-chat'
+    | 'community-chat'
+    | 'community-1-to-1-chat'
+    | 'community-prospect-to-prospect-chat';
+
+export type ActivityTab = 'chat' | 'content' | 'faq';
 
 /**
  * Message structure
