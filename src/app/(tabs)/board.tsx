@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import type { ListRenderItemInfo } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Image } from 'expo-image';
 import { useSelector } from 'react-redux';
 
@@ -227,6 +228,7 @@ LeaderCard.displayName = 'LeaderCard';
 export default function LeaderboardScreen() {
   const { colors, shapes, palette } = useTheme();
   const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
 
   const currentUserId = useSelector((state: RootState) => state.auth.user?.id);
   const currentUserIdRef = useRef(currentUserId);
@@ -237,17 +239,22 @@ export default function LeaderboardScreen() {
   }, [currentUserId]);
 
   const [leaders, setLeaders] = useState<LeaderboardAmbassador[]>([]);
-  const [nextLeaders, setNextLeaders] = useState<LeaderboardAmbassador[]>([]);
+  const [allNextLeaders, setAllNextLeaders] = useState<LeaderboardAmbassador[]>([]);
+  const [displayCount, setDisplayCount] = useState(DISPLAY_BATCH);
   const [currentAmbassador, setCurrentAmbassador] = useState<LeaderboardAmbassador | null>(null);
-  const [total, setTotal] = useState(0);
-  const [offset, setOffset] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const [fetchLeaderboard, { isLoading, isFetching }] = useLazyGetLeaderboardQuery();
 
+  // Only show items up to displayCount for smooth scrolling
+  const nextLeaders = useMemo(
+    () => allNextLeaders.slice(0, displayCount),
+    [allNextLeaders, displayCount]
+  );
+
   // Load leaderboard data
   const loadLeaderboard = useCallback(
-    async (leaderboardOffset = 0, append = false) => {
+    async (leaderboardOffset = 0, _append = false) => {
       try {
         const result = await fetchLeaderboard({
           offset: leaderboardOffset,
@@ -264,38 +271,25 @@ export default function LeaderboardScreen() {
             isCurrentAmbassador: amb.id === currentUserIdRef.current,
           }));
 
-          if (append) {
-            // Append to existing list
-            setNextLeaders((prev) => {
-              const existingIds = new Set(prev.map((item) => item.id));
-              const uniqueItems = marked
-                .filter((item) => item.index > 3)
-                .filter((item) => !existingIds.has(item.id));
-              return [...prev, ...uniqueItems];
-            });
+          // Top 3 leaders
+          const top3 = marked.filter((amb) => amb.index <= 3);
+          const sortedTop3 = [
+            top3.find((a) => a.index === 2),
+            top3.find((a) => a.index === 1),
+            top3.find((a) => a.index === 3),
+          ].filter(Boolean) as LeaderboardAmbassador[];
+
+          setLeaders(sortedTop3);
+          setAllNextLeaders(marked.filter((amb) => amb.index > 3));
+          setDisplayCount(DISPLAY_BATCH);
+
+          // Find current ambassador if outside top list
+          const current = marked.find((amb) => amb.isCurrentAmbassador);
+          if (current && current.index > 3) {
+            setCurrentAmbassador(current);
           } else {
-            // Top 3 leaders
-            const top3 = marked.filter((amb) => amb.index <= 3);
-            const sortedTop3 = [
-              top3.find((a) => a.index === 2),
-              top3.find((a) => a.index === 1),
-              top3.find((a) => a.index === 3),
-            ].filter(Boolean) as LeaderboardAmbassador[];
-
-            setLeaders(sortedTop3);
-            setNextLeaders(marked.filter((amb) => amb.index > 3));
-
-            // Find current ambassador if outside top list
-            const current = marked.find((amb) => amb.isCurrentAmbassador);
-            if (current && current.index > 3) {
-              setCurrentAmbassador(current);
-            } else {
-              setCurrentAmbassador(null);
-            }
+            setCurrentAmbassador(null);
           }
-
-          setOffset(leaderboardOffset);
-          setTotal(newTotal);
         }
       } catch (error) {
         console.error('Failed to load leaderboard:', error);
@@ -315,17 +309,17 @@ export default function LeaderboardScreen() {
   const handleRefresh = useCallback(() => {
     setIsRefreshing(true);
     setLeaders([]);
-    setNextLeaders([]);
-    setOffset(0);
+    setAllNextLeaders([]);
+    setDisplayCount(DISPLAY_BATCH);
     loadLeaderboard(0, false);
   }, [loadLeaderboard]);
 
-  // Handle load more
+  // Handle load more — just reveal more from the already loaded data
   const handleLoadMore = useCallback(() => {
-    if (!isLoading && !isFetching && nextLeaders.length + 3 < total) {
-      loadLeaderboard(offset + LEADERBOARD_LIMIT, true);
+    if (displayCount < allNextLeaders.length) {
+      setDisplayCount((prev) => Math.min(prev + DISPLAY_BATCH, allNextLeaders.length));
     }
-  }, [isLoading, isFetching, nextLeaders.length, total, offset, loadLeaderboard]);
+  }, [displayCount, allNextLeaders.length]);
 
   // Render item - memoized
   const renderItem = useCallback(
@@ -397,6 +391,8 @@ export default function LeaderboardScreen() {
     );
   }, [leaders, isLoading, colors, palette]);
 
+  const hasMore = displayCount < allNextLeaders.length;
+
   // List footer
   const ListFooter = useMemo(() => {
     const showCurrentAmbassador =
@@ -417,14 +413,14 @@ export default function LeaderboardScreen() {
             />
           </View>
         )}
-        {isFetching && nextLeaders.length > 0 && (
+        {hasMore && (
           <View style={styles.footerLoader}>
             <ActivityIndicator size="small" color={palette.primary[500]} />
           </View>
         )}
       </>
     );
-  }, [currentAmbassador, nextLeaders, isFetching, colors, shapes, palette]);
+  }, [currentAmbassador, nextLeaders, hasMore, colors, shapes, palette]);
 
   // Empty state
   const ListEmpty = useMemo(() => {
@@ -461,7 +457,7 @@ export default function LeaderboardScreen() {
         ListHeaderComponent={ListHeader}
         ListFooterComponent={ListFooter}
         ListEmptyComponent={leaders.length === 0 ? ListEmpty : null}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, { paddingBottom: tabBarHeight + 24 }]}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}

@@ -1,7 +1,7 @@
 /**
  * API Endpoints Types
  *
- * This file contains TypeScript types for all API endpoints extracted from API logs.
+ * This file contains TypeScript types for all API endpoints.
  * Types are organized by endpoint and include request/response structures.
  * Common/reusable types are defined at the top to avoid duplication.
  */
