@@ -58,7 +58,7 @@ author = 53802457
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm start"
+args = "yarn start"
 
 [agent]
 expertMode = true
