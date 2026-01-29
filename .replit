@@ -40,7 +40,7 @@ author = 53802457
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm install"
+args = "yarn install"
 
 [[workflows.workflow]]
 name = "Commit to main"
