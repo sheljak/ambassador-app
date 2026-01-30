@@ -1,8 +1,10 @@
-import { useMemo, useState, useCallback } from 'react';
-import { useAppSelector } from '@/store';
+import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
+import { useAppSelector, useAppDispatch } from '@/store';
 import { selectMessagesByDialogId, selectDialogById } from '@/store/features/dialogs/selectors';
 import { authSelectors } from '@/store/features/auth';
-import type { Message, User, ParentMessage } from '@/store/types_that_will_used';
+import { useViewMessagesMutation } from '@/store/features/dialogs';
+import { dialogsApi } from '@/store/features/dialogs/api';
+import type { Message, ParentMessage } from '@/store/types_that_will_used';
 import type { ChatMessage, ChatType, ChatConfig } from '../types';
 import { useChatMessages } from './useChatMessages';
 import { usePusherChat } from './usePusherChat';
@@ -15,9 +17,6 @@ interface UseChatOptions {
   searchTerm?: string;
 }
 
-/**
- * Transforms a store Message into a GiftedChat-compatible ChatMessage.
- */
 const transformMessage = (
   msg: Message,
   currentUserId: number,
@@ -49,17 +48,13 @@ const transformMessage = (
   return chatMsg;
 };
 
-/**
- * Main chat orchestrator hook.
- * Combines message loading, pagination, sending, and Pusher realtime.
- */
 export const useChat = ({ dialogId, chatType, config = {}, searchTerm }: UseChatOptions) => {
+  const dispatch = useAppDispatch();
   const currentUser = useAppSelector(authSelectors.selectUser);
   const storeMessages = useAppSelector(selectMessagesByDialogId(dialogId));
   const dialog = useAppSelector(selectDialogById(dialogId));
   const currentUserId = currentUser?.id ?? 0;
 
-  // Sub-hooks
   const { isLoadingMore, hasMore, loadMore, refresh } = useChatMessages({
     dialogId,
     isFaq: config.isFaq,
@@ -70,7 +65,33 @@ export const useChat = ({ dialogId, chatType, config = {}, searchTerm }: UseChat
   const { sendMessage: sendRaw, isSending } = useSendMessage({
     dialogId,
     currentUser,
+    isFaq: config.isFaq,
   });
+
+  const [viewMessages] = useViewMessagesMutation();
+
+  // Mark messages as viewed once on initial load
+  const viewedRef = useRef(false);
+  useEffect(() => {
+    if (!dialogId || !storeMessages.length || viewedRef.current) return;
+    viewedRef.current = true;
+
+    const messageIds = storeMessages
+      .filter((m) => !m.is_your && m.id)
+      .slice(0, 30)
+      .map((m) => m.id);
+
+    if (messageIds.length > 0) {
+      viewMessages({ dialog_id: dialogId, message_ids: messageIds }).catch(() => {});
+    }
+  }, [dialogId, storeMessages.length, viewMessages]);
+
+  // Invalidate dialogs list on unmount to refresh unread counters
+  useEffect(() => {
+    return () => {
+      dispatch(dialogsApi.util.invalidateTags([{ type: 'Dialogs', id: 'LIST' }]));
+    };
+  }, [dispatch]);
 
   // Reply state
   const [replyTo, setReplyTo] = useState<ParentMessage | null>(null);
@@ -82,12 +103,11 @@ export const useChat = ({ dialogId, chatType, config = {}, searchTerm }: UseChat
       .sort((a, b) => {
         const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
         const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-        return dateB - dateA; // newest first for GiftedChat
+        return dateB - dateA;
       })
       .map((msg) => transformMessage(msg, currentUserId, searchTerm));
   }, [storeMessages, currentUserId, searchTerm]);
 
-  // Handlers
   const onSend = useCallback(
     (newMessages: ChatMessage[] = []) => {
       const text = newMessages[0]?.text;
@@ -105,7 +125,6 @@ export const useChat = ({ dialogId, chatType, config = {}, searchTerm }: UseChat
 
   const startReply = useCallback((message: ChatMessage) => {
     if (message._raw?.parentMessage) {
-      // Already a reply, reply to original
       setReplyTo(message._raw.parentMessage);
     } else if (message._raw) {
       setReplyTo({
@@ -120,7 +139,6 @@ export const useChat = ({ dialogId, chatType, config = {}, searchTerm }: UseChat
     setReplyTo(null);
   }, []);
 
-  // Dialog state checks
   const dialogClosed = useMemo(() => {
     if (messages.length > 0) {
       return messages[0].messageType === 'closed';
@@ -136,28 +154,19 @@ export const useChat = ({ dialogId, chatType, config = {}, searchTerm }: UseChat
   }, [messages]);
 
   return {
-    // Data
     messages,
     dialog,
     currentUser,
     currentUserId,
-
-    // Loading state
     isLoadingMore,
     hasMore,
     isSending,
-
-    // Actions
     onSend,
     onLoadEarlier,
     refresh,
-
-    // Reply
     replyTo,
     startReply,
     cancelReply,
-
-    // Dialog state
     dialogClosed,
     dialogArchived,
   };

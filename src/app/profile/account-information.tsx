@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState, useMemo } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import {
   StyleSheet,
   View,
@@ -15,8 +15,9 @@ import { useForm } from 'react-hook-form';
 
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
-import { FormInput, Button, Select, ActionSheet } from '@/components/ui';
-import type { SelectItem, ActionSheetRef, ActionSheetOption } from '@/components/ui';
+import { FormInput, Button, Select } from '@/components/ui';
+import type { SelectItem } from '@/components/ui';
+import { MediaPickerSheet } from '@/components/ui/MediaPickerSheet';
 import { Loader } from '@/components/Loader';
 import { useTheme } from '@/theme';
 import {
@@ -81,7 +82,7 @@ export default function AccountInformationScreen() {
     setSelectedCountryId(item.id);
   }, []);
 
-  const actionSheetRef = useRef<ActionSheetRef>(null);
+  const [pickerVisible, setPickerVisible] = useState(false);
 
   const handlePickImage = useCallback(
     async (source: 'camera' | 'library') => {
@@ -106,24 +107,8 @@ export default function AccountInformationScreen() {
     [setAvatar]
   );
 
-  const photoOptions: ActionSheetOption[] = useMemo(
-    () => [
-      {
-        label: 'Take Photo',
-        icon: 'camera-outline' as const,
-        onPress: () => handlePickImage('camera'),
-      },
-      {
-        label: 'Choose from Library',
-        icon: 'images-outline' as const,
-        onPress: () => handlePickImage('library'),
-      },
-    ],
-    [handlePickImage]
-  );
-
   const handleChangePhoto = useCallback(() => {
-    actionSheetRef.current?.open();
+    setPickerVisible(true);
   }, []);
 
   // Save handler
@@ -308,9 +293,11 @@ export default function AccountInformationScreen() {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      <ActionSheet
-        ref={actionSheetRef}
-        options={photoOptions}
+      <MediaPickerSheet
+        visible={pickerVisible}
+        onClose={() => setPickerVisible(false)}
+        onCamera={() => handlePickImage('camera')}
+        onLibrary={() => handlePickImage('library')}
       />
     </ThemedView>
   );

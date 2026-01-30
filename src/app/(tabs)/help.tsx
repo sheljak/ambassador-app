@@ -8,7 +8,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { Loader } from '@/components/Loader';
 import { useTheme } from '@/theme';
-import { useGetHubspotTokenQuery } from '@/store/features/auth/api';
+import { useLazyGetHubspotTokenQuery } from '@/store/features/auth/api';
 import { useAppSelector } from '@/store';
 
 export default function HelpScreen() {
@@ -17,7 +17,7 @@ export default function HelpScreen() {
   const tabBarHeight = useBottomTabBarHeight();
 
   const email = useAppSelector((state) => state.auth.user?.email);
-  const [getHubspotToken] = useGetHubspotTokenQuery();
+  const [getHubspotToken] = useLazyGetHubspotTokenQuery();
   const [hubspotToken, setHubspotToken] = useState<string | null>(null);
   const [tokenReady, setTokenReady] = useState(false);
   const [webviewLoaded, setWebviewLoaded] = useState(false);

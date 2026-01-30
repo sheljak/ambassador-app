@@ -57,9 +57,7 @@ export default function MessagesScreen() {
   const [total, setTotal] = useState(0);
 
   // Get account info with new messages counts
-  const { data: accountData } = useGetAccountQuery(undefined, {
-    pollingInterval: 30000,
-  });
+  const { data: accountData, refetch: refetchAccount } = useGetAccountQuery();
   const newMessages = accountData?.data?.newMessages;
   const userId = useAppSelector((state) => state.auth.user?.id);
 
@@ -193,6 +191,11 @@ export default function MessagesScreen() {
       },
     });
   }, [router]);
+
+  // Refetch account info (unread counts) when tab gains focus
+  useEffect(() => {
+    if (isFocused) refetchAccount();
+  }, [isFocused, refetchAccount]);
 
   // Setup Pusher subscriptions
   useEffect(() => {
