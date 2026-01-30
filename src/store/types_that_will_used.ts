@@ -1097,11 +1097,36 @@ export type DialogTypeKey =
 export type ActivityTab = 'chat' | 'content' | 'faq';
 
 /**
+ * Message content structure (API returns nested object)
+ */
+export interface MessageContent {
+    text?: string;
+    post?: {
+        id?: number;
+        type?: string;
+        caption?: string;
+        images?: Array<{ original: string }>;
+        videos?: Array<{ original: string }>;
+    };
+    key?: string;
+}
+
+/**
+ * Parent message structure for replies
+ */
+export interface ParentMessage {
+    id: number;
+    content?: MessageContent;
+    user?: User;
+    [key: string]: unknown;
+}
+
+/**
  * Message structure
  */
 export interface Message {
     id: number;
-    content?: string;
+    content?: MessageContent;
     text?: string;
     type?: string;
     user?: User;
@@ -1111,6 +1136,12 @@ export interface Message {
     image?: Image;
     video?: unknown;
     audio?: unknown;
+    parentMessage?: ParentMessage;
+    system?: boolean;
+    is_hidden?: boolean;
+    isUserBlocked?: boolean;
+    is_your?: boolean;
+    hide_keywords?: boolean;
     [key: string]: unknown;
 }
 
