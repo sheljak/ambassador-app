@@ -73,11 +73,14 @@ export default function MessagesScreen() {
   const newMessages = accountData?.data?.newMessages;
   const userId = useAppSelector((state) => state.auth.user?.id);
   const storeMessages = useAppSelector(selectMessages);
+  const storeMessagesRef = useRef(storeMessages);
+  storeMessagesRef.current = storeMessages;
 
   const [getDialogs, { isLoading, isFetching }] = useLazyGetDialogsQuery();
 
   const channelRef = useRef<Channel | null>(null);
   const userChannelRef = useRef<Channel | null>(null);
+  const messagesChannelRef = useRef<Channel | null>(null);
 
   // Ref to track current dialog IDs for Pusher subscriptions (avoids re-subscribe loops)
   const dialogIdsRef = useRef<number[]>([]);
@@ -271,7 +274,7 @@ export default function MessagesScreen() {
         lastVisitedDialogRef.current = null;
 
         // Get the latest message from Redux store for this dialog
-        const dialogMessages = storeMessages[visitedId];
+        const dialogMessages = storeMessagesRef.current[visitedId];
         const latestMessage = dialogMessages?.length
           ? dialogMessages[dialogMessages.length - 1]
           : null;
@@ -330,6 +333,13 @@ export default function MessagesScreen() {
       loadDialogs(true);
     });
 
+    // Real-time badge counter updates (same as legacy "messages" channel)
+    pusher.unsubscribe(CHANNEL_NAMES.MESSAGES);
+    messagesChannelRef.current = pusher.subscribe(CHANNEL_NAMES.MESSAGES);
+    messagesChannelRef.current.bind(`counter:new:${userId}`, () => {
+      refetchAccount();
+    });
+
     // Per-dialog message events → update in-place
     boundDialogIdsRef.current = new Set();
     const ids = dialogIdsRef.current;
@@ -346,11 +356,13 @@ export default function MessagesScreen() {
     return () => {
       pusher.unsubscribe(CHANNEL_NAMES.TAP_PAGE);
       pusher.unsubscribe(CHANNEL_NAMES.USER);
+      pusher.unsubscribe(CHANNEL_NAMES.MESSAGES);
       channelRef.current = null;
       userChannelRef.current = null;
+      messagesChannelRef.current = null;
       boundDialogIdsRef.current = new Set();
     };
-  }, [isFocused, userId, loadDialogs, updateDialogInPlace]); // removed `dialogs` dependency
+  }, [isFocused, userId, loadDialogs, updateDialogInPlace, refetchAccount]);
 
   // Bind events for newly added dialogs (without re-binding existing ones)
   useEffect(() => {

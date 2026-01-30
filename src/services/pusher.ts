@@ -16,6 +16,7 @@ export const getPusher = (): Pusher => {
 export const CHANNEL_NAMES = {
   TAP_PAGE: 'tap-page',
   USER: 'user',
+  MESSAGES: 'messages',
 } as const;
 
 export default getPusher;

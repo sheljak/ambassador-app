@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { View, Text, Pressable } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { GiftedChat, Avatar, SystemMessage, Send } from 'react-native-gifted-chat';
+import { View, Text, Pressable, Platform, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { GiftedChat, Avatar, SystemMessage, Send, InputToolbar } from 'react-native-gifted-chat';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
@@ -14,6 +14,8 @@ import { ReplyFooter, ClosedChatBanner } from './ChatInput';
 import { chatStyles as styles } from './styles';
 import { useTheme } from '@/theme';
 
+const HEADER_HEIGHT = 49; // paddingVertical(12)*2 + icon(24) + border(1)
+
 export const ChatView: React.FC<ChatViewProps> = ({
   dialogId,
   dialogName,
@@ -25,6 +27,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
 }) => {
   const router = useRouter();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const config = configOverride ?? getChatConfig(chatType);
 
   const {
@@ -117,8 +120,27 @@ export const ChatView: React.FC<ChatViewProps> = ({
     return null;
   }, [replyTo, cancelReply]);
 
+  const renderInputToolbar = useCallback(
+    (props: any) => {
+      if (inputDisabled) return null;
+      return (
+        <View style={{ backgroundColor: colors.background.primary, paddingBottom: insets.bottom }}>
+          <InputToolbar
+            {...props}
+            containerStyle={[
+              inputToolbarStyles.container,
+              { borderTopColor: colors.border.default },
+            ]}
+            primaryStyle={inputToolbarStyles.primary}
+          />
+        </View>
+      );
+    },
+    [inputDisabled, colors, insets.bottom],
+  );
+
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background.primary }]} edges={['top', 'bottom']}>
+    <View style={[styles.safeArea, { backgroundColor: colors.background.primary, paddingTop: insets.top }]}>
       {/* Header */}
       <View style={[styles.header, { borderBottomColor: colors.border.default }]}>
         <Pressable onPress={handleBack} style={styles.headerBtn}>
@@ -147,7 +169,13 @@ export const ChatView: React.FC<ChatViewProps> = ({
           onSend={onSend}
           user={{ _id: currentUserId }}
           timeFormat="HH:mm"
-          minInputToolbarHeight={inputDisabled ? 0 : 52}
+          minInputToolbarHeight={inputDisabled ? 0 : 44}
+          bottomOffset={insets.bottom}
+          isStatusBarTranslucentAndroid
+          keyboardShouldPersistTaps="never"
+          keyboardAvoidingViewProps={{
+            keyboardVerticalOffset: insets.top + HEADER_HEIGHT,
+          }}
           isAvatarOnTop
           loadEarlierMessagesProps={{
             isAvailable: hasMore && !searchTerm,
@@ -160,24 +188,8 @@ export const ChatView: React.FC<ChatViewProps> = ({
           renderAvatar={renderAvatar}
           renderBubble={renderBubble}
           renderChatFooter={renderChatFooter}
-          renderInputToolbar={inputDisabled ? null : undefined}
+          renderInputToolbar={renderInputToolbar}
           onPressAvatar={onAvatarPress as any}
-          textInputStyle={{
-            fontSize: 15,
-            lineHeight: 20,
-            paddingHorizontal: 12,
-            paddingTop: 10,
-            paddingBottom: 10,
-            color: colors.text.primary,
-            backgroundColor: colors.background.secondary,
-            borderRadius: 20,
-            borderWidth: 1,
-            borderColor: colors.border.default,
-            marginLeft: 10,
-            marginRight: 4,
-            marginBottom: 6,
-            marginTop: 6,
-          }}
           textInputProps={{
             placeholderTextColor: colors.text.disabled,
             placeholder: 'Type a message...',
@@ -187,6 +199,15 @@ export const ChatView: React.FC<ChatViewProps> = ({
         {dialogClosed && !dialogArchived && <ClosedChatBanner type="closed" />}
         {dialogArchived && <ClosedChatBanner type="archived" />}
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
+
+const inputToolbarStyles = StyleSheet.create({
+  container: {
+    borderTopWidth: 1,
+  },
+  primary: {
+    alignItems: 'center',
+  },
+});
