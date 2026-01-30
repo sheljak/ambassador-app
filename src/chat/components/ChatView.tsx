@@ -11,7 +11,8 @@ import { useChat } from '../hooks/useChat';
 import { ChatBubble } from './ChatBubble';
 import { ChatMenu } from './ChatMenu';
 import { ReplyFooter, ClosedChatBanner } from './ChatInput';
-import { chatStyles as styles, COLORS } from './styles';
+import { chatStyles as styles } from './styles';
+import { useTheme } from '@/theme';
 
 export const ChatView: React.FC<ChatViewProps> = ({
   dialogId,
@@ -23,6 +24,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
   onAvatarPress,
 }) => {
   const router = useRouter();
+  const { colors } = useTheme();
   const config = configOverride ?? getChatConfig(chatType);
 
   const {
@@ -59,12 +61,12 @@ export const ChatView: React.FC<ChatViewProps> = ({
   const renderSend = useCallback(
     (props: any) => (
       <Send {...props} containerStyle={styles.sendContainer}>
-        <View style={styles.sendButton}>
-          <Ionicons name="send" size={14} color={COLORS.white} />
+        <View style={[styles.sendButton, { backgroundColor: colors.interactive.default }]}>
+          <Ionicons name="send" size={14} color={colors.text.inverse} />
         </View>
       </Send>
     ),
-    [],
+    [colors],
   );
 
   const renderSystemMessage = useCallback(
@@ -116,20 +118,20 @@ export const ChatView: React.FC<ChatViewProps> = ({
   }, [replyTo, cancelReply]);
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background.primary }]} edges={['top', 'bottom']}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { borderBottomColor: colors.border.default }]}>
         <Pressable onPress={handleBack} style={styles.headerBtn}>
-          <Ionicons name="chevron-back" size={24} color={COLORS.primary} />
+          <Ionicons name="chevron-back" size={24} color={colors.text.primary} />
         </Pressable>
         <View style={styles.headerTitle}>
-          <Text style={styles.headerTitleText} numberOfLines={1}>
+          <Text style={[styles.headerTitleText, { color: colors.text.primary }]} numberOfLines={1}>
             {dialogName || dialog?.dialog_name || 'Chat'}
           </Text>
         </View>
         {config.showMenuFeature && (
           <Pressable onPress={() => setShowMenu((p) => !p)} style={styles.headerBtn}>
-            <Ionicons name="menu" size={24} color={COLORS.text} />
+            <Ionicons name="menu" size={24} color={colors.text.primary} />
           </Pressable>
         )}
       </View>
@@ -145,7 +147,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
           onSend={onSend}
           user={{ _id: currentUserId }}
           timeFormat="HH:mm"
-          minInputToolbarHeight={inputDisabled ? 0 : 44}
+          minInputToolbarHeight={inputDisabled ? 0 : 52}
           isAvatarOnTop
           loadEarlierMessagesProps={{
             isAvailable: hasMore && !searchTerm,
@@ -160,6 +162,26 @@ export const ChatView: React.FC<ChatViewProps> = ({
           renderChatFooter={renderChatFooter}
           renderInputToolbar={inputDisabled ? null : undefined}
           onPressAvatar={onAvatarPress as any}
+          textInputStyle={{
+            fontSize: 15,
+            lineHeight: 20,
+            paddingHorizontal: 12,
+            paddingTop: 10,
+            paddingBottom: 10,
+            color: colors.text.primary,
+            backgroundColor: colors.background.secondary,
+            borderRadius: 20,
+            borderWidth: 1,
+            borderColor: colors.border.default,
+            marginLeft: 10,
+            marginRight: 4,
+            marginBottom: 6,
+            marginTop: 6,
+          }}
+          textInputProps={{
+            placeholderTextColor: colors.text.disabled,
+            placeholder: 'Type a message...',
+          }}
         />
 
         {dialogClosed && !dialogArchived && <ClosedChatBanner type="closed" />}

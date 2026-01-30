@@ -1,22 +1,24 @@
 import { StyleSheet, Dimensions, Platform } from 'react-native';
+import { palette } from '@/theme/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('screen');
 
 export const COLORS = {
-  primary: '#ff5100',
-  primaryLight: '#ff7433',
-  background: '#ffffff',
-  surface: '#f8f9fa',
-  text: '#222222',
-  textSecondary: '#666666',
-  textMuted: 'rgba(34, 34, 34, 0.7)',
-  border: '#e8e8e8',
-  error: 'rgb(220, 46, 46)',
+  primary: palette.primary[500],      // #0a7ea4 (teal)
+  primaryLight: palette.primary[400],  // #33C1D6
+  background: palette.neutral[0],     // #FFFFFF
+  surface: palette.neutral[50],       // #F9FAFB
+  text: palette.neutral[900],         // #111827
+  textSecondary: palette.neutral[600],// #4B5563
+  textMuted: palette.neutral[500],    // #6B7280
+  border: palette.neutral[200],       // #E5E7EB
+  error: palette.error[500],          // #EF4444
   white: '#ffffff',
   black: '#000000',
   menuBg: 'rgb(38, 46, 69)',
   menuSeparator: 'rgb(112, 112, 112)',
-  systemMessage: '#999999',
+  systemMessage: palette.neutral[400], // #9CA3AF
+  sentBubbleBg: palette.primary[50],   // #E6F7FA (light teal)
 } as const;
 
 export const SPACING = {
@@ -128,7 +130,7 @@ export const chatStyles = StyleSheet.create({
     backgroundColor: COLORS.surface,
   },
   bubbleContainerRight: {
-    backgroundColor: '#fff3ed',
+    backgroundColor: COLORS.sentBubbleBg,
   },
   bubbleTopContainer: {
     flexDirection: 'row' as const,

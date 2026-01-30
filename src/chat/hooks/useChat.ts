@@ -1,9 +1,8 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
-import { useAppSelector, useAppDispatch } from '@/store';
+import { useAppSelector } from '@/store';
 import { selectMessagesByDialogId, selectDialogById } from '@/store/features/dialogs/selectors';
 import { authSelectors } from '@/store/features/auth';
 import { useViewMessagesMutation } from '@/store/features/dialogs';
-import { dialogsApi } from '@/store/features/dialogs/api';
 import type { Message, ParentMessage } from '@/store/types_that_will_used';
 import type { ChatMessage, ChatType, ChatConfig } from '../types';
 import { useChatMessages } from './useChatMessages';
@@ -49,7 +48,6 @@ const transformMessage = (
 };
 
 export const useChat = ({ dialogId, chatType, config = {}, searchTerm }: UseChatOptions) => {
-  const dispatch = useAppDispatch();
   const currentUser = useAppSelector(authSelectors.selectUser);
   const storeMessages = useAppSelector(selectMessagesByDialogId(dialogId));
   const dialog = useAppSelector(selectDialogById(dialogId));
@@ -85,13 +83,6 @@ export const useChat = ({ dialogId, chatType, config = {}, searchTerm }: UseChat
       viewMessages({ dialog_id: dialogId, message_ids: messageIds }).catch(() => {});
     }
   }, [dialogId, storeMessages.length, viewMessages]);
-
-  // Invalidate dialogs list on unmount to refresh unread counters
-  useEffect(() => {
-    return () => {
-      dispatch(dialogsApi.util.invalidateTags([{ type: 'Dialogs', id: 'LIST' }]));
-    };
-  }, [dispatch]);
 
   // Reply state
   const [replyTo, setReplyTo] = useState<ParentMessage | null>(null);

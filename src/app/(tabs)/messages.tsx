@@ -19,6 +19,7 @@ import { useTheme } from '@/theme';
 import { useLazyGetDialogsQuery } from '@/store/features/dialogs/api';
 import { useGetAccountQuery } from '@/store/features/auth/api';
 import { useAppSelector } from '@/store';
+import { selectMessages } from '@/store/features/dialogs/selectors';
 import { getPusher, CHANNEL_NAMES } from '@/services/pusher';
 import type { Dialog, ActivityTab } from '@/store/types_that_will_used';
 import type { Channel } from 'pusher-js';
@@ -35,6 +36,17 @@ const LIMIT = 20;
 interface TabCache {
   dialogs: Dialog[];
   total: number;
+}
+
+interface PusherMessageEvent {
+  dialog_id: number;
+  notification?: {
+    message?: string;
+    title?: string;
+    icon?: string;
+  };
+  type?: string;
+  user_id?: number;
 }
 
 export default function MessagesScreen() {
@@ -60,17 +72,30 @@ export default function MessagesScreen() {
   const { data: accountData, refetch: refetchAccount } = useGetAccountQuery();
   const newMessages = accountData?.data?.newMessages;
   const userId = useAppSelector((state) => state.auth.user?.id);
+  const storeMessages = useAppSelector(selectMessages);
 
   const [getDialogs, { isLoading, isFetching }] = useLazyGetDialogsQuery();
 
   const channelRef = useRef<Channel | null>(null);
   const userChannelRef = useRef<Channel | null>(null);
 
+  // Ref to track current dialog IDs for Pusher subscriptions (avoids re-subscribe loops)
+  const dialogIdsRef = useRef<number[]>([]);
+
+  // Track which dialog IDs have bound Pusher handlers (to avoid duplicate binds)
+  const boundDialogIdsRef = useRef<Set<number>>(new Set());
+
+  // Track the last visited dialog so we can clear its unread counter on return
+  const lastVisitedDialogRef = useRef<number | null>(null);
+
   // Cache key for current tab + search
   const cacheKey = useMemo(() => {
     const search = activeTab === 'chat' ? debouncedSearchTerm : '';
     return `${activeTab}:${search}`;
   }, [activeTab, debouncedSearchTerm]);
+
+  // Search pending = user typed but debounce hasn't settled yet
+  const isSearchPending = searchTerm !== debouncedSearchTerm;
 
   // Tab data with unread counts
   const tabs = useMemo(() => [
@@ -147,6 +172,48 @@ export default function MessagesScreen() {
     }
   }, [isLoadingMore, isFetching, dialogs, total, activeTab, debouncedSearchTerm, cacheKey, getDialogs, parseResponse]);
 
+  // Update a single dialog in-place (for Pusher events)
+  const updateDialogInPlace = useCallback((event: PusherMessageEvent) => {
+    setDialogs((prev) => {
+      const dialogId = event.dialog_id;
+      const idx = prev.findIndex(
+        (d) => (d.dialog_id || d.id) === dialogId
+      );
+      if (idx === -1) return prev; // dialog not in list, skip
+
+      const updated = { ...prev[idx] };
+
+      // Update last message text from notification
+      if (event.notification?.message) {
+        updated.last_message = {
+          ...(updated.last_message || {}),
+          type: 'text',
+          content: { text: event.notification.message },
+        } as any;
+      }
+
+      // Increment new messages counter
+      updated.new_messages = (updated.new_messages || 0) + 1;
+
+      // Update last activity to now
+      updated.dialog_last_activity = new Date().toISOString();
+
+      // Move to top of list
+      const next = [updated, ...prev.filter((_, i) => i !== idx)];
+
+      // Update cache too
+      const key = `${activeTab}:${activeTab === 'chat' ? debouncedSearchTerm : ''}`;
+      if (tabCacheRef.current[key]) {
+        tabCacheRef.current[key] = { ...tabCacheRef.current[key], dialogs: next };
+      }
+
+      return next;
+    });
+
+    // Also refresh account unread counts
+    refetchAccount();
+  }, [activeTab, debouncedSearchTerm, refetchAccount]);
+
   // Initial load & tab/search change
   useEffect(() => {
     loadDialogs(false);
@@ -182,6 +249,7 @@ export default function MessagesScreen() {
   }, [loadMore]);
 
   const handleDialogPress = useCallback((dialog: Dialog) => {
+    lastVisitedDialogRef.current = dialog.dialog_id || dialog.id;
     router.push({
       pathname: '/chat',
       params: {
@@ -192,12 +260,60 @@ export default function MessagesScreen() {
     });
   }, [router]);
 
-  // Refetch account info (unread counts) when tab gains focus
+  // Refetch account info (unread counts) when tab gains focus — but don't refetch dialog list
   useEffect(() => {
-    if (isFocused) refetchAccount();
-  }, [isFocused, refetchAccount]);
+    if (isFocused) {
+      refetchAccount();
 
-  // Setup Pusher subscriptions
+      // Update the dialog the user just visited: clear unread counter + update last message
+      const visitedId = lastVisitedDialogRef.current;
+      if (visitedId) {
+        lastVisitedDialogRef.current = null;
+
+        // Get the latest message from Redux store for this dialog
+        const dialogMessages = storeMessages[visitedId];
+        const latestMessage = dialogMessages?.length
+          ? dialogMessages[dialogMessages.length - 1]
+          : null;
+
+        setDialogs((prev) => {
+          const idx = prev.findIndex((d) => (d.dialog_id || d.id) === visitedId);
+          if (idx === -1) return prev;
+
+          const updates: Partial<Dialog> = { new_messages: 0 };
+
+          if (latestMessage) {
+            updates.last_message = latestMessage as any;
+            updates.dialog_last_activity = latestMessage.created_at || new Date().toISOString();
+          }
+
+          const updated = [...prev];
+          updated[idx] = { ...updated[idx], ...updates };
+
+          // Update cache too
+          const key = `${activeTab}:${activeTab === 'chat' ? debouncedSearchTerm : ''}`;
+          if (tabCacheRef.current[key]) {
+            tabCacheRef.current[key] = { ...tabCacheRef.current[key], dialogs: updated };
+          }
+
+          return updated;
+        });
+      }
+
+      // Soft-refresh: only refetch dialogs if cache is empty (first load)
+      const key = `${activeTab}:${activeTab === 'chat' ? debouncedSearchTerm : ''}`;
+      if (!tabCacheRef.current[key]) {
+        loadDialogs(false);
+      }
+    }
+  }, [isFocused]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Keep dialogIdsRef in sync
+  useEffect(() => {
+    dialogIdsRef.current = dialogs.map((d) => d.dialog_id || d.id);
+  }, [dialogs]);
+
+  // Setup Pusher subscriptions — use refs to avoid re-subscribe loops
   useEffect(() => {
     if (!isFocused || !userId) return;
 
@@ -208,16 +324,23 @@ export default function MessagesScreen() {
 
     channelRef.current = pusher.subscribe(CHANNEL_NAMES.TAP_PAGE);
 
+    // New dialog created → full refetch (rare event)
     userChannelRef.current = pusher.subscribe(CHANNEL_NAMES.USER);
     userChannelRef.current.bind(`${userId}:dialogs:new`, () => {
       loadDialogs(true);
     });
 
-    dialogs.forEach((dialog) => {
-      const dialogId = dialog.dialog_id || dialog.id;
-      channelRef.current?.bind(`dialogs:${dialogId}:messages:new`, () => {
-        loadDialogs(true);
-      });
+    // Per-dialog message events → update in-place
+    boundDialogIdsRef.current = new Set();
+    const ids = dialogIdsRef.current;
+    ids.forEach((dialogId) => {
+      channelRef.current?.bind(
+        `dialogs:${dialogId}:messages:new`,
+        (data: PusherMessageEvent) => {
+          updateDialogInPlace({ ...data, dialog_id: dialogId });
+        }
+      );
+      boundDialogIdsRef.current.add(dialogId);
     });
 
     return () => {
@@ -225,8 +348,26 @@ export default function MessagesScreen() {
       pusher.unsubscribe(CHANNEL_NAMES.USER);
       channelRef.current = null;
       userChannelRef.current = null;
+      boundDialogIdsRef.current = new Set();
     };
-  }, [isFocused, userId, dialogs, loadDialogs]);
+  }, [isFocused, userId, loadDialogs, updateDialogInPlace]); // removed `dialogs` dependency
+
+  // Bind events for newly added dialogs (without re-binding existing ones)
+  useEffect(() => {
+    if (!channelRef.current) return;
+
+    const ids = dialogIdsRef.current;
+    ids.forEach((dialogId) => {
+      if (boundDialogIdsRef.current.has(dialogId)) return;
+      channelRef.current?.bind(
+        `dialogs:${dialogId}:messages:new`,
+        (data: PusherMessageEvent) => {
+          updateDialogInPlace({ ...data, dialog_id: dialogId });
+        }
+      );
+      boundDialogIdsRef.current.add(dialogId);
+    });
+  }, [dialogs.length, updateDialogInPlace]);
 
   // Render
   const renderItem = useCallback(({ item }: ListRenderItemInfo<Dialog>) => (
@@ -252,6 +393,8 @@ export default function MessagesScreen() {
   };
 
   const isInitialLoading = isLoading && dialogs.length === 0;
+  // Only show empty state when not loading, not fetching, and search is settled
+  const showEmpty = dialogs.length === 0 && !isFetching && !isSearchPending && !isLoading;
 
   return (
     <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
@@ -274,7 +417,7 @@ export default function MessagesScreen() {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.text.secondary} />
         </View>
-      ) : dialogs.length === 0 && !isFetching ? (
+      ) : showEmpty ? (
         <View style={styles.emptyContainer}>
           <ThemedText style={[styles.emptyText, { color: colors.text.secondary }]}>
             {getEmptyText()}

@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import type { ChatMessage } from '../types';
 import { chatStyles as styles, COLORS } from './styles';
 import { isSameUser, isSameDay, getProfileLabel } from './utils';
+import { useTheme } from '@/theme';
 
 interface ChatBubbleProps {
   currentMessage: ChatMessage;
@@ -27,6 +28,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
   ...props
 }) => {
   const { showActionSheetWithOptions } = useActionSheet();
+  const { colors, palette: themePalette } = useTheme();
 
   const sameUserMsg = isSameUser(currentMessage, previousMessage);
   const sameDayMsg = isSameDay(currentMessage, previousMessage);
@@ -90,8 +92,8 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
           right: styles.messageTextContainer,
         }}
         textStyle={{
-          left: [styles.messageText, (isUserBlocked || isHidden) && styles.messageTextItalic],
-          right: [styles.messageText, (isUserBlocked || isHidden) && styles.messageTextItalic],
+          left: [styles.messageText, { color: colors.text.primary }, (isUserBlocked || isHidden) && styles.messageTextItalic],
+          right: [styles.messageText, { color: colors.text.primary }, (isUserBlocked || isHidden) && styles.messageTextItalic],
         }}
       />
     );
@@ -102,11 +104,13 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
       <View
         style={[
           styles.bubbleContainer,
-          position === 'left' ? styles.bubbleContainerLeft : styles.bubbleContainerRight,
+          position === 'left'
+            ? [styles.bubbleContainerLeft, { backgroundColor: colors.background.secondary }]
+            : [styles.bubbleContainerRight, { backgroundColor: themePalette.primary[50] }],
           sameUserMsg && sameDayMsg ? positionOffset : null,
           {
             marginBottom: sameUserNext ? 3 : 20,
-            borderColor: COLORS.primary,
+            borderColor: colors.interactive.default,
             borderWidth: currentMessage.isSearchedMessage || currentMessage.isPinnedMessage ? 1 : 0,
           },
         ]}
@@ -118,7 +122,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
               {currentMessage.isPinnedMessage && (
                 <View style={styles.pinnedDot} />
               )}
-              <Text style={[styles.bubbleNameText, position === 'right' && styles.bubbleNameTextRight]}>
+              <Text style={[styles.bubbleNameText, { color: colors.interactive.default }, position === 'right' && { color: themePalette.primary[400] }]}>
                 {currentMessage.user?.name ?? ''}
               </Text>
               {currentMessage.isUserBlocked && (
@@ -130,17 +134,17 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
             ) : null}
           </View>
           <View style={styles.bubbleTimeContainer}>
-            <Text style={styles.bubbleTimeText}>{timeStr}</Text>
+            <Text style={[styles.bubbleTimeText, { color: colors.text.secondary }]}>{timeStr}</Text>
           </View>
         </View>
 
         {/* Reply reference */}
         {parentMessage && (
-          <View style={styles.replyMessageContainer}>
-            <Text style={styles.replyMessageName} numberOfLines={1}>
+          <View style={[styles.replyMessageContainer, { backgroundColor: colors.background.secondary, borderLeftColor: colors.interactive.default }]}>
+            <Text style={[styles.replyMessageName, { color: colors.interactive.default }]} numberOfLines={1}>
               {parentMessage.user?.name ?? 'Deleted'}
             </Text>
-            <Text style={styles.replyMessageText} numberOfLines={1}>
+            <Text style={[styles.replyMessageText, { color: colors.text.secondary }]} numberOfLines={1}>
               {parentMessage.content?.text ?? ''}
             </Text>
           </View>
