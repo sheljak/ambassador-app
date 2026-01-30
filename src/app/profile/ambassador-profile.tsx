@@ -33,7 +33,7 @@ import {
   useGetCourseTypesQuery,
   useGetCountriesQuery,
   useGetInterestsQuery,
-  useSaveProfileInfoMutation,
+  useSetProfileInfoMutation,
 } from '@/store/features/auth/api';
 import { ToastService } from '@/services';
 
@@ -127,7 +127,7 @@ export default function AmbassadorProfileScreen() {
   const { data: countriesRes } = useGetCountriesQuery();
   const { data: interestsRes } = useGetInterestsQuery();
 
-  const [saveProfileInfo, { isLoading: isSaving }] = useSaveProfileInfoMutation();
+  const [setProfileInfo, { isLoading: isSaving }] = useSetProfileInfoMutation();
 
   // Dropdown items
   // profileTypes & staffTypes use `key` as unique identifier (like old app)
@@ -458,7 +458,7 @@ export default function AmbassadorProfileScreen() {
       }
 
       try {
-        await saveProfileInfo(data as any).unwrap();
+        await setProfileInfo(data as any).unwrap();
         ToastService.success('Changes saved');
       } catch (error) {
         console.error('Failed to save profile:', error);
@@ -470,7 +470,7 @@ export default function AmbassadorProfileScreen() {
       studentTypes, studentTypeId, yearsOfStudy, yearOfStudyId,
       industryValue, courseTypeId, countriesRes, companyCountryName,
       subjectValue, isAcademicStaff, children, workingSince, userTags, acctOrAmbassador,
-      selectedInterestIds, interestItems, saveProfileInfo,
+      selectedInterestIds, interestItems, setProfileInfo,
     ]
   );
 

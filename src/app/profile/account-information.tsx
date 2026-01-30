@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useState, useMemo, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -83,6 +83,7 @@ export default function AccountInformationScreen() {
   }, []);
 
   const [pickerVisible, setPickerVisible] = useState(false);
+  const [pendingPickerSource, setPendingPickerSource] = useState<'camera' | 'library' | null>(null);
 
   const handlePickImage = useCallback(
     async (source: 'camera' | 'library') => {
@@ -106,6 +107,16 @@ export default function AccountInformationScreen() {
     },
     [setAvatar]
   );
+
+  // Launch picker after the sheet modal has fully closed
+  useEffect(() => {
+    if (!pickerVisible && pendingPickerSource) {
+      const source = pendingPickerSource;
+      setPendingPickerSource(null);
+      // Small delay to ensure Modal is fully unmounted on iOS
+      setTimeout(() => handlePickImage(source), 300);
+    }
+  }, [pickerVisible, pendingPickerSource, handlePickImage]);
 
   const handleChangePhoto = useCallback(() => {
     setPickerVisible(true);
@@ -296,8 +307,8 @@ export default function AccountInformationScreen() {
       <MediaPickerSheet
         visible={pickerVisible}
         onClose={() => setPickerVisible(false)}
-        onCamera={() => handlePickImage('camera')}
-        onLibrary={() => handlePickImage('library')}
+        onCamera={() => setPendingPickerSource('camera')}
+        onLibrary={() => setPendingPickerSource('library')}
       />
     </ThemedView>
   );

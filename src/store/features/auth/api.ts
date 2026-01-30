@@ -90,6 +90,16 @@ export const authApi = baseApi.injectEndpoints({
       invalidatesTags: ['Account', 'Profile'],
     }),
 
+    // Set profile info via POST /v1/application/account/set-info
+    setProfileInfo: builder.mutation<ChangeAmbassadorData.Response, ChangeAmbassadorData.Request>({
+      query: (data) => ({
+        url: 'v1/application/account/set-info',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Account', 'Profile'],
+    }),
+
     // Set avatar
     setAvatar: builder.mutation<SetAvatar.Response, SetAvatar.Request>({
       query: (data) => ({
@@ -229,6 +239,7 @@ export const {
   useGetAmbassadorDataQuery,
   useChangeAmbassadorDataMutation,
   useSaveProfileInfoMutation,
+  useSetProfileInfoMutation,
   useSetAvatarMutation,
   useSetInterestsMutation,
   useGetInterestsQuery,

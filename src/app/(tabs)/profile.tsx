@@ -73,9 +73,10 @@ export default function ProfileScreen() {
   const contentPoints = ambassadorData?.content_points ?? 0;
 
   // Use profile response for display (like legacy), fall back to auth user
-  const data = profileData?.name ? profileData : user;
+  // Name/avatar may live at profileData level or inside ambassadorData depending on API response shape
+  const data = profileData?.name ? profileData : ambassadorData?.name ? ambassadorData : user;
   const subjectInfo = data ? prepareSubjectInfo(data) : '';
-  const avatarUri = data?.avatar?.original;
+  const avatarUri = profileData?.avatar?.original ?? ambassadorData?.avatar?.original ?? data?.avatar?.original;
   const displayName = data?.name
     ? `${data.name} ${data.last_name || ''}`.trim()
     : user?.first_name

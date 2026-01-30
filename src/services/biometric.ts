@@ -46,6 +46,17 @@ export const BiometricService = {
   },
 
   /**
+   * Get raw supported authentication type codes (1 = fingerprint, 2 = facial recognition).
+   */
+  getRawTypes: async (): Promise<number[]> => {
+    try {
+      return await LocalAuthentication.supportedAuthenticationTypesAsync();
+    } catch {
+      return [];
+    }
+  },
+
+  /**
    * Trigger biometric authentication prompt
    */
   authenticate: async (promptMessage?: string): Promise<boolean> => {
@@ -53,7 +64,8 @@ export const BiometricService = {
       const result = await LocalAuthentication.authenticateAsync({
         promptMessage: promptMessage || 'Authenticate to sign in',
         cancelLabel: 'Cancel',
-        disableDeviceFallback: false,
+        fallbackLabel: 'Continue regular sign in',
+        disableDeviceFallback: true,
       });
       return result.success;
     } catch {
