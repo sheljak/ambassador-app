@@ -49,6 +49,12 @@ interface PusherMessageEvent {
   user_id?: number;
 }
 
+interface PusherTabMessageEvent {
+  newMessagesChat: number;
+  newMessagesContentGroup: number;
+  newMessagesFAQ: number;
+}
+
 export default function MessagesScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -214,7 +220,7 @@ export default function MessagesScreen() {
     });
 
     // Also refresh account unread counts
-    refetchAccount();
+    // refetchAccount();
   }, [activeTab, debouncedSearchTerm, refetchAccount]);
 
   // Initial load & tab/search change
@@ -337,7 +343,7 @@ export default function MessagesScreen() {
     pusher.unsubscribe(CHANNEL_NAMES.MESSAGES);
     messagesChannelRef.current = pusher.subscribe(CHANNEL_NAMES.MESSAGES);
     messagesChannelRef.current.bind(`counter:new:${userId}`, () => {
-      refetchAccount();
+      // refetchAccount();
     });
 
     // Per-dialog message events → update in-place
