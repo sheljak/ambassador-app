@@ -80,11 +80,8 @@ export const dialogsApi = baseApi.injectEndpoints({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: (result, error, { dialog_id }) => [
-        { type: 'Messages', id: dialog_id },
-        { type: 'Dialogs', id: dialog_id },
-        { type: 'Dialogs', id: 'LIST' },
-      ],
+      // No invalidatesTags — messages are managed via Redux store (addMessage),
+      // dialog list is refreshed on chat unmount via invalidateTags in useChat.
     }),
 
     // Create dialog (start chat)
@@ -104,9 +101,7 @@ export const dialogsApi = baseApi.injectEndpoints({
         method: 'POST',
         body: { message_ids },
       }),
-      invalidatesTags: (result, error, { dialog_id }) => [
-        { type: 'Dialogs', id: dialog_id },
-      ],
+      // No invalidatesTags — counter refresh happens on chat unmount
     }),
 
     // Toggle archive dialog

@@ -7,6 +7,7 @@ import { ActivityIndicator, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import 'react-native-reanimated';
 
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { store } from '@/store';
 import { AuthGuard } from '@/components/AuthGuard';
@@ -28,19 +29,21 @@ export default function RootLayout() {
 
   return (
     <Provider store={store}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <AuthGuard>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="index" />
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="chat" options={{ animation: 'slide_from_right' }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-          <StatusBar style="auto" />
-        </AuthGuard>
-        <Toast config={toastConfig} />
-      </ThemeProvider>
+      <ActionSheetProvider>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <AuthGuard>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="index" />
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="chat" options={{ animation: 'slide_from_right' }} />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+            <StatusBar style="auto" />
+          </AuthGuard>
+          <Toast config={toastConfig} />
+        </ThemeProvider>
+      </ActionSheetProvider>
     </Provider>
   );
 }

@@ -37,7 +37,7 @@ const MessagesTabBar: React.FC<MessagesTabBarProps> = ({
             ]}
             onPress={() => onTabChange(tab.key)}
           >
-            <View style={styles.tabContent}>
+            <View>
               <ThemedText
                 style={[
                   styles.tabLabel,
@@ -72,22 +72,20 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
   },
-  tabContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   tabLabel: {
     fontSize: 14,
     fontWeight: '500',
   },
   badge: {
-    marginLeft: 6,
-    minWidth: 18,
-    height: 18,
-    borderRadius: 9,
+    position: 'absolute',
+    right: -17,
+    top: -8,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 4,
+    paddingHorizontal: 3,
   },
   badgeText: {
     color: '#FFFFFF',

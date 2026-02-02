@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import type { ListRenderItem } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useSelector } from 'react-redux';
 
 import { ThemedView } from '@/components/ThemedView';
@@ -24,6 +25,7 @@ const FEED_LIMIT = 10;
 export default function HomeScreen() {
   const { colors, palette } = useTheme();
   const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
 
   // Get current user ID from Redux
   const currentUser = useSelector((state: RootState) => state.auth.user?.id);
@@ -172,7 +174,7 @@ export default function HomeScreen() {
         keyExtractor={keyExtractor}
         ListEmptyComponent={ListEmpty}
         ListFooterComponent={ListFooter}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, { paddingBottom: tabBarHeight + 24 }]}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}

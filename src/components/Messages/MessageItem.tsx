@@ -7,6 +7,46 @@ import { useTheme } from '@/theme';
 import type { Dialog, DialogTypeKey } from '@/store/types_that_will_used';
 import { formatRelativeTime } from '@/helpers/common';
 
+/** Renders text with search term highlighted */
+const HighlightedText = ({
+  text,
+  highlight,
+  style,
+  highlightColor,
+  numberOfLines,
+}: {
+  text: string;
+  highlight?: string;
+  style?: any;
+  highlightColor: string;
+  numberOfLines?: number;
+}) => {
+  if (!highlight || !highlight.trim()) {
+    return (
+      <ThemedText style={style} numberOfLines={numberOfLines}>
+        {text}
+      </ThemedText>
+    );
+  }
+
+  const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  const parts = text.split(regex);
+
+  return (
+    <ThemedText style={style} numberOfLines={numberOfLines}>
+      {parts.map((part, i) =>
+        regex.test(part) ? (
+          <Text key={i} style={{ backgroundColor: highlightColor, fontWeight: '700' }}>
+            {part}
+          </Text>
+        ) : (
+          part
+        )
+      )}
+    </ThemedText>
+  );
+};
+
 interface MessageItemProps {
   item: Dialog;
   searchTerm?: string;
@@ -68,6 +108,7 @@ const getLastMessageText = (item: Dialog, defaultMessage: string): string => {
     case 'joined':
     case 'delete':
     case 'autotext':
+    case 'search-text':
       return (content as { text?: string })?.text || 'No messages';
     case 'post':
       return 'Sent content';
@@ -81,7 +122,8 @@ const getLastMessageText = (item: Dialog, defaultMessage: string): string => {
 };
 
 const MessageItem: React.FC<MessageItemProps> = ({ item, searchTerm, onPress }) => {
-  const { colors, palette, shapes } = useTheme();
+  const { colors, palette } = useTheme();
+  const highlightColor = palette.primary[100] ?? '#FFF3CD';
 
   const typeInfo = useMemo(() => getDialogTypeInfo(item.dialog_type_key), [item.dialog_type_key]);
   const dialogName = useMemo(
@@ -204,9 +246,13 @@ const MessageItem: React.FC<MessageItemProps> = ({ item, searchTerm, onPress }) 
 
       <View style={styles.content}>
         <View style={styles.topRow}>
-          <ThemedText style={styles.name} numberOfLines={1}>
-            {dialogName}
-          </ThemedText>
+          <HighlightedText
+            text={dialogName}
+            highlight={searchTerm}
+            style={styles.name}
+            highlightColor={highlightColor}
+            numberOfLines={1}
+          />
           <ThemedText style={[styles.time, { color: colors.text.secondary }]}>
             {relativeTime}
           </ThemedText>
@@ -220,15 +266,16 @@ const MessageItem: React.FC<MessageItemProps> = ({ item, searchTerm, onPress }) 
               </ThemedText>
             </View>
           ) : (
-            <ThemedText
+            <HighlightedText
+              text={lastMessage}
+              highlight={searchTerm}
               style={[
                 styles.message,
                 { color: hasNewMessages ? colors.text.primary : colors.text.secondary },
               ]}
+              highlightColor={highlightColor}
               numberOfLines={1}
-            >
-              {lastMessage}
-            </ThemedText>
+            />
           )}
 
           <View style={styles.infoContainer}>
