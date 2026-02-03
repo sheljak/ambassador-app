@@ -3,7 +3,6 @@ import {
   StyleSheet,
   View,
   FlatList,
-  ActivityIndicator,
   RefreshControl,
 } from 'react-native';
 import type { ListRenderItemInfo } from 'react-native';
@@ -14,6 +13,7 @@ import { useSelector } from 'react-redux';
 
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
+import { Loader } from '@/components/Loader';
 import { useTheme } from '@/theme';
 import { useLazyGetLeaderboardQuery } from '@/store/features/leaderboard';
 import { prepareSubjectInfo } from '@/helpers/common';
@@ -415,7 +415,7 @@ export default function LeaderboardScreen() {
         )}
         {hasMore && (
           <View style={styles.footerLoader}>
-            <ActivityIndicator size="small" color={palette.primary[500]} />
+            <Loader size="small" inline />
           </View>
         )}
       </>
@@ -427,7 +427,7 @@ export default function LeaderboardScreen() {
     if (isLoading) {
       return (
         <View style={styles.emptyContainer}>
-          <ActivityIndicator size="large" color={palette.primary[500]} />
+          <Loader size="large" />
         </View>
       );
     }

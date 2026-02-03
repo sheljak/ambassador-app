@@ -85,6 +85,16 @@ const dialogsSlice = createSlice({
       }
     },
 
+    // Remove a message (used to replace optimistic sends)
+    removeMessage(
+      state,
+      action: PayloadAction<{ dialogId: number; messageId: number }>
+    ) {
+      const { dialogId, messageId } = action.payload;
+      const existing = state.messages[dialogId] || [];
+      state.messages[dialogId] = existing.filter((m) => m.id !== messageId);
+    },
+
     // Mark dialog as read
     markDialogAsRead(state, action: PayloadAction<number>) {
       const dialogId = action.payload;
@@ -129,6 +139,7 @@ export const {
   setLoading,
   setError,
   clearMessages,
+  removeMessage,
   resetDialogs,
 } = dialogsSlice.actions;
 

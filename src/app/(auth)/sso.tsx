@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet, Alert, ActivityIndicator, Pressable } from 'react-native';
+import { View, StyleSheet, Alert, Pressable } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,8 +7,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useTheme } from '@/theme';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/hooks';
 import { getTapPageUrl } from '@/store/settings';
+import { Loader } from '@/components/Loader';
 
 export default function SsoScreen() {
   const { colors } = useTheme();
@@ -60,7 +62,7 @@ export default function SsoScreen() {
     return (
       <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.interactive.default} />
+          <Loader size="large" />
           <ThemedText style={[styles.loadingText, { color: colors.text.secondary }]}>
             Signing in...
           </ThemedText>
@@ -73,11 +75,11 @@ export default function SsoScreen() {
     <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
       <View style={[styles.header, { borderBottomColor: colors.border.default }]}>
         <Pressable onPress={handleBack} style={styles.backButton}>
-          <ThemedText style={{ color: colors.interactive.default }}>
-            ← Back
-          </ThemedText>
+          <Ionicons name="chevron-back" size={24} color={colors.text.primary} />
         </Pressable>
-        <ThemedText style={styles.headerTitle}>Sign In with SSO</ThemedText>
+        <View style={styles.headerTitle}>
+          <ThemedText style={styles.headerTitleText}>Sign In with SSO</ThemedText>
+        </View>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -90,7 +92,7 @@ export default function SsoScreen() {
         incognito
         renderLoading={() => (
           <View style={styles.webviewLoading}>
-            <ActivityIndicator size="large" color={colors.interactive.default} />
+            <Loader size="large" />
           </View>
         )}
       />
@@ -110,17 +112,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   backButton: {
-    paddingVertical: 8,
-    paddingRight: 16,
+    padding: 8,
   },
   headerTitle: {
     flex: 1,
+    alignItems: 'center',
+  },
+  headerTitleText: {
     fontSize: 17,
     fontWeight: '600',
-    textAlign: 'center',
   },
   headerSpacer: {
-    width: 60,
+    width: 40,
   },
   webview: {
     flex: 1,

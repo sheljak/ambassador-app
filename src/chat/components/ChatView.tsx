@@ -26,7 +26,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
   onAvatarPress,
 }) => {
   const router = useRouter();
-  const { colors } = useTheme();
+  const { colors, spacing } = useTheme();
   const insets = useSafeAreaInsets();
   const config = configOverride ?? getChatConfig(chatType);
 
@@ -65,7 +65,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
     (props: any) => (
       <Send {...props} containerStyle={styles.sendContainer}>
         <View style={[styles.sendButton, { backgroundColor: colors.interactive.default }]}>
-          <Ionicons name="send" size={14} color={colors.text.inverse} />
+          <Ionicons name="paper-plane" size={16} color={colors.text.inverse} />
         </View>
       </Send>
     ),
@@ -193,6 +193,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
           textInputProps={{
             placeholderTextColor: colors.text.disabled,
             placeholder: 'Type a message...',
+            style: { paddingLeft: spacing.md },
           }}
         />
 

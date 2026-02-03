@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useAppDispatch } from '@/store';
 import { useSendMessageMutation } from '@/store/features/dialogs';
-import { addMessage } from '@/store/features/dialogs';
+import { addMessage, removeMessage } from '@/store/features/dialogs';
 import type { Message, User, ParentMessage } from '@/store/types_that_will_used';
 
 interface UseSendMessageOptions {
@@ -45,7 +45,12 @@ export const useSendMessage = ({ dialogId, currentUser, isFaq }: UseSendMessageO
         }).unwrap();
 
         if (response?.data) {
-          dispatch(addMessage({ dialogId, message: response.data as Message }));
+          const serverMessage = response.data as Message;
+          if (!serverMessage.user) {
+            serverMessage.user = currentUser;
+          }
+          dispatch(removeMessage({ dialogId, messageId: tempId }));
+          dispatch(addMessage({ dialogId, message: serverMessage }));
         }
       } catch {
         // Error handled by RTK Query

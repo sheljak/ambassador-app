@@ -6,11 +6,12 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSegments } from 'expo-router';
-import { View, ActivityIndicator } from 'react-native';
+import { View } from 'react-native';
 
 import { useAppSelector, useAppDispatch, authSelectors, hydrateAuth } from '@/store';
 import { useTheme } from '@/theme';
 import { AuthStorageService } from '@/services/authStorage';
+import { Loader } from '@/components/Loader';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -81,7 +82,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
           backgroundColor: colors.background.primary,
         }}
       >
-        <ActivityIndicator size="large" color={colors.interactive.default} />
+        <Loader size="large" />
       </View>
     );
   }
@@ -122,7 +123,7 @@ export function AuthLoading() {
         backgroundColor: colors.background.primary,
       }}
     >
-      <ActivityIndicator size="large" color={colors.interactive.default} />
+      <Loader size="large" />
     </View>
   );
 }

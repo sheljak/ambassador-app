@@ -3,7 +3,6 @@ import {
   StyleSheet,
   View,
   FlatList,
-  ActivityIndicator,
   ListRenderItemInfo,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,6 +14,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { MessageItem, MessagesSearch, MessagesTabBar } from '@/components/Messages';
+import { Loader } from '@/components/Loader';
 import { useTheme } from '@/theme';
 import { useLazyGetDialogsQuery } from '@/store/features/dialogs/api';
 import { useGetAccountQuery } from '@/store/features/auth/api';
@@ -96,6 +96,7 @@ export default function MessagesScreen() {
 
   // Track the last visited dialog so we can clear its unread counter on return
   const lastVisitedDialogRef = useRef<number | null>(null);
+  const lastVisitedMessageIdRef = useRef<Record<number, number | null>>({});
 
   // Cache key for current tab + search
   const cacheKey = useMemo(() => {
@@ -223,6 +224,84 @@ export default function MessagesScreen() {
     // refetchAccount();
   }, [activeTab, debouncedSearchTerm, refetchAccount]);
 
+  const getLatestMessage = useCallback((messages?: Dialog['last_message'][] | any[]) => {
+    if (!messages || messages.length === 0) return null;
+    return messages.reduce((latest, msg) => {
+      if (!latest) return msg;
+      const latestAt = latest.created_at ? new Date(latest.created_at).getTime() : 0;
+      const msgAt = msg.created_at ? new Date(msg.created_at).getTime() : 0;
+      return msgAt >= latestAt ? msg : latest;
+    }, null as any);
+  }, []);
+
+  const syncDialogFromStore = useCallback((dialogId: number, options?: { markRead?: boolean; moveToTop?: boolean }) => {
+    const dialogMessages = storeMessagesRef.current[dialogId];
+    const latestMessage = getLatestMessage(dialogMessages);
+
+    setDialogs((prev) => {
+      const idx = prev.findIndex((d) => (d.dialog_id || d.id) === dialogId);
+      if (idx === -1) return prev;
+
+      const updates: Partial<Dialog> = {};
+      if (options?.markRead) {
+        updates.new_messages = 0;
+      }
+      if (latestMessage) {
+        updates.last_message = latestMessage as any;
+        updates.dialog_last_activity = latestMessage.created_at || new Date().toISOString();
+      }
+
+      const next = [...prev];
+      next[idx] = { ...next[idx], ...updates };
+
+      const ordered = options?.moveToTop
+        ? [next[idx], ...next.filter((_, i) => i !== idx)]
+        : next;
+
+      const key = `${activeTab}:${activeTab === 'chat' ? debouncedSearchTerm : ''}`;
+      if (tabCacheRef.current[key]) {
+        tabCacheRef.current[key] = { ...tabCacheRef.current[key], dialogs: ordered };
+      }
+
+      return ordered;
+    });
+  }, [activeTab, debouncedSearchTerm, getLatestMessage]);
+
+  const syncDialogsFromStore = useCallback(() => {
+    setDialogs((prev) => {
+      let changed = false;
+      const next = prev.map((dialog) => {
+        const dialogId = dialog.dialog_id || dialog.id;
+        const dialogMessages = storeMessagesRef.current[dialogId];
+        const latestMessage = getLatestMessage(dialogMessages);
+
+        if (!latestMessage) return dialog;
+
+        const latestAt = latestMessage.created_at ? new Date(latestMessage.created_at).getTime() : 0;
+        const currentAt = dialog.dialog_last_activity ? new Date(dialog.dialog_last_activity).getTime() : 0;
+        const hasNewer = latestAt > currentAt || dialog.last_message?.id !== latestMessage.id;
+
+        if (!hasNewer) return dialog;
+
+        changed = true;
+        return {
+          ...dialog,
+          last_message: latestMessage as any,
+          dialog_last_activity: latestMessage.created_at || new Date().toISOString(),
+        };
+      });
+
+      if (!changed) return prev;
+
+      const key = `${activeTab}:${activeTab === 'chat' ? debouncedSearchTerm : ''}`;
+      if (tabCacheRef.current[key]) {
+        tabCacheRef.current[key] = { ...tabCacheRef.current[key], dialogs: next };
+      }
+
+      return next;
+    });
+  }, [activeTab, debouncedSearchTerm]);
+
   // Initial load & tab/search change
   useEffect(() => {
     loadDialogs(false);
@@ -259,6 +338,8 @@ export default function MessagesScreen() {
 
   const handleDialogPress = useCallback((dialog: Dialog) => {
     lastVisitedDialogRef.current = dialog.dialog_id || dialog.id;
+    lastVisitedMessageIdRef.current[lastVisitedDialogRef.current] =
+      (dialog.last_message as any)?.id ?? null;
     router.push({
       pathname: '/chat',
       params: {
@@ -272,47 +353,32 @@ export default function MessagesScreen() {
   // Refetch account info (unread counts) when tab gains focus — but don't refetch dialog list
   useEffect(() => {
     if (isFocused) {
-      refetchAccount();
-
       // Update the dialog the user just visited: clear unread counter + update last message
       const visitedId = lastVisitedDialogRef.current;
       if (visitedId) {
         lastVisitedDialogRef.current = null;
-
-        // Get the latest message from Redux store for this dialog
         const dialogMessages = storeMessagesRef.current[visitedId];
-        const latestMessage = dialogMessages?.length
-          ? dialogMessages[dialogMessages.length - 1]
-          : null;
+        const latestMessage = getLatestMessage(dialogMessages);
+        const prevMessageId = lastVisitedMessageIdRef.current[visitedId] ?? null;
+        const hasNewLocalMessage =
+          latestMessage && latestMessage.id && latestMessage.id !== prevMessageId;
+        const isMine =
+          !!latestMessage && (latestMessage.is_your || latestMessage.user?.id === userId);
 
-        setDialogs((prev) => {
-          const idx = prev.findIndex((d) => (d.dialog_id || d.id) === visitedId);
-          if (idx === -1) return prev;
-
-          const updates: Partial<Dialog> = { new_messages: 0 };
-
-          if (latestMessage) {
-            updates.last_message = latestMessage as any;
-            updates.dialog_last_activity = latestMessage.created_at || new Date().toISOString();
-          }
-
-          const updated = [...prev];
-          updated[idx] = { ...updated[idx], ...updates };
-
-          // Update cache too
-          const key = `${activeTab}:${activeTab === 'chat' ? debouncedSearchTerm : ''}`;
-          if (tabCacheRef.current[key]) {
-            tabCacheRef.current[key] = { ...tabCacheRef.current[key], dialogs: updated };
-          }
-
-          return updated;
+        syncDialogFromStore(visitedId, {
+          markRead: true,
+          moveToTop: hasNewLocalMessage && isMine,
         });
+      } else {
+        syncDialogsFromStore();
       }
 
-      // Soft-refresh: only refetch dialogs if cache is empty (first load)
+      // Restore from cache on focus if list is empty (avoid refetch)
       const key = `${activeTab}:${activeTab === 'chat' ? debouncedSearchTerm : ''}`;
-      if (!tabCacheRef.current[key]) {
-        loadDialogs(false);
+      const cached = tabCacheRef.current[key];
+      if (dialogs.length === 0 && cached) {
+        setDialogs(cached.dialogs);
+        setTotal(cached.total);
       }
     }
   }, [isFocused]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -397,7 +463,7 @@ export default function MessagesScreen() {
   ), [searchTerm, handleDialogPress]);
 
   const keyExtractor = useCallback((item: Dialog, index: number) =>
-    `${item.dialog_id || item.id}-${index}`,
+    String(item.dialog_id || item.id),
   []);
 
   const getEmptyText = () => {
@@ -433,7 +499,7 @@ export default function MessagesScreen() {
 
       {isInitialLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.text.secondary} />
+          <Loader size="large" />
         </View>
       ) : showEmpty ? (
         <View style={styles.emptyContainer}>
@@ -461,7 +527,7 @@ export default function MessagesScreen() {
           ListFooterComponent={
             isLoadingMore ? (
               <View style={styles.footer}>
-                <ActivityIndicator size="small" color={colors.text.secondary} />
+                <Loader size="small" inline />
               </View>
             ) : null
           }

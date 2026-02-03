@@ -80,7 +80,6 @@ export const chatStyles = StyleSheet.create({
     marginBottom: 8,
     marginLeft: 10,
     marginRight: 10,
-    paddingRight: 1,
   },
 
   // System message
@@ -125,6 +124,30 @@ export const chatStyles = StyleSheet.create({
     borderRadius: RADIUS.lg,
     position: 'relative' as const,
     zIndex: 0,
+  },
+  bubbleRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+  },
+  messageActionButton: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  },
+  messageActionButtonLeft: {
+    marginLeft: 6,
+    marginRight: 2,
+  },
+  messageActionButtonRight: {
+    marginRight: 6,
+    marginLeft: 2,
+  },
+  messageActionDots: {
+    fontSize: 14,
+    fontWeight: '700' as const,
+    letterSpacing: -1,
   },
   bubbleContainerLeft: {
     backgroundColor: COLORS.surface,
@@ -219,6 +242,24 @@ export const chatStyles = StyleSheet.create({
     opacity: 1,
   },
 
+  // Media inside bubble
+  mediaContainer: {
+    marginHorizontal: SPACING.lg,
+    marginTop: SPACING.sm,
+    marginBottom: SPACING.sm,
+    borderRadius: RADIUS.md,
+    overflow: 'hidden' as const,
+    backgroundColor: COLORS.border,
+  },
+  mediaImage: {
+    width: 220,
+    height: 180,
+  },
+  mediaVideo: {
+    width: 240,
+    height: 180,
+  },
+
   // Reply message in bubble
   replyMessageContainer: {
     backgroundColor: COLORS.surface,
@@ -297,6 +338,7 @@ export const chatStyles = StyleSheet.create({
     color: COLORS.primary,
     padding: 0,
   },
+
 
   // Menu
   menuContainer: {

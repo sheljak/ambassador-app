@@ -3,7 +3,6 @@ import {
   StyleSheet,
   FlatList,
   View,
-  ActivityIndicator,
   RefreshControl,
 } from 'react-native';
 import type { ListRenderItem } from 'react-native';
@@ -14,6 +13,7 @@ import { useSelector } from 'react-redux';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { FeedItem, FeedHeader } from '@/components/Feed';
+import { Loader } from '@/components/Loader';
 import { useTheme } from '@/theme';
 import { useLazyGetFeedsQuery } from '@/store/features/feeds';
 import type { FeedType } from '@/store/features/feeds/types';
@@ -133,7 +133,7 @@ export default function HomeScreen() {
     if (isLoading) {
       return (
         <View style={styles.emptyContainer}>
-          <ActivityIndicator size="large" color={palette.primary[500]} />
+          <Loader size="large" />
         </View>
       );
     }
@@ -155,7 +155,7 @@ export default function HomeScreen() {
 
     return (
       <View style={styles.footerContainer}>
-        <ActivityIndicator size="small" color={palette.primary[500]} />
+        <Loader size="small" inline />
       </View>
     );
   }, [isFetching, feeds.length, palette]);

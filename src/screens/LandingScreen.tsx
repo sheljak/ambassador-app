@@ -1,6 +1,8 @@
 import { StyleSheet, Pressable, View } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Asset } from 'expo-asset';
+import { SvgUri } from 'react-native-svg';
 
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
@@ -9,6 +11,7 @@ import { useTheme } from '@/theme';
 export function LandingScreen() {
   const { colors, spacing, shapes } = useTheme();
   const insets = useSafeAreaInsets();
+  const logoAsset = Asset.fromModule(require('../../assets/svg/idp-logo.svg'));
 
   const handleGetStarted = () => {
     router.push('/sign-in' as any);
@@ -18,28 +21,8 @@ export function LandingScreen() {
     <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-          <View
-            style={[
-              styles.logoPlaceholder,
-              {
-                backgroundColor: colors.interactive.default,
-                borderRadius: shapes.radius['2xl'],
-              },
-            ]}
-          >
-            <ThemedText style={[styles.logoText, { color: colors.text.inverse }]}>
-              A
-            </ThemedText>
-          </View>
+          <SvgUri uri={logoAsset.uri} width={300} height={300} />
         </View>
-
-        <ThemedText type="title" style={styles.title}>
-          Welcome to Ambassador
-        </ThemedText>
-
-        <ThemedText style={[styles.subtitle, { color: colors.text.secondary }]}>
-          Connect, share, and grow with your community
-        </ThemedText>
       </View>
 
       <View style={[styles.buttonContainer, { paddingBottom: insets.bottom + spacing.lg }]}>
@@ -77,16 +60,6 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     marginBottom: 32,
-  },
-  logoPlaceholder: {
-    width: 100,
-    height: 100,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logoText: {
-    fontSize: 48,
-    fontWeight: 'bold',
   },
   title: {
     textAlign: 'center',

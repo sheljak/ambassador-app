@@ -7,12 +7,12 @@ import React from 'react';
 import {
   Pressable,
   Text,
-  ActivityIndicator,
   StyleSheet,
   PressableProps,
   View,
 } from 'react-native';
 import { useTheme } from '@/theme';
+import { Loader } from '@/components/Loader';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -162,7 +162,7 @@ export function Button({
       {...pressableProps}
     >
       {loading ? (
-        <ActivityIndicator color={getTextColor()} size="small" />
+        <Loader size="small" inline />
       ) : (
         <View style={styles.content}>
           {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}

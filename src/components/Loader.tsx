@@ -7,6 +7,8 @@ const DOT_COLORS = ['#E07400', '#B4E646', '#0874E7'];
 interface LoaderProps {
   size?: 'small' | 'large';
   paddingBottom?: number;
+  inline?: boolean;
+  style?: object;
 }
 
 function PulseDot({ color, delay, dotSize }: { color: string; delay: number; dotSize: number }) {
@@ -46,12 +48,20 @@ function PulseDot({ color, delay, dotSize }: { color: string; delay: number; dot
   );
 }
 
-export function Loader({ size = 'large', paddingBottom = 0 }: LoaderProps) {
+export function Loader({ size = 'large', paddingBottom = 0, inline = false, style }: LoaderProps) {
   const dotSize = size === 'small' ? 10 : 16;
   const dotSpacing = size === 'small' ? 8 : 12;
 
   return (
-    <View style={[styles.container, size === 'small' && styles.containerSmall, { paddingBottom }]}>
+    <View
+      style={[
+        styles.container,
+        !inline && size === 'small' && styles.containerSmall,
+        inline && styles.containerInline,
+        { paddingBottom },
+        style,
+      ]}
+    >
       <View style={[styles.dotsRow, { gap: dotSpacing }]}>
         {DOT_COLORS.map((color, i) => (
           <PulseDot key={i} color={color} delay={i * (DURATION / 6)} dotSize={dotSize} />
@@ -70,6 +80,10 @@ const styles = StyleSheet.create({
   containerSmall: {
     flex: 0,
     padding: 16,
+  },
+  containerInline: {
+    flex: 0,
+    padding: 0,
   },
   dotsRow: {
     flexDirection: 'row',

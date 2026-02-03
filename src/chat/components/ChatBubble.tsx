@@ -1,12 +1,12 @@
-import React, { useCallback } from 'react';
-import { View, Text, Clipboard, Pressable } from 'react-native';
+import React, { useCallback, useMemo, useState } from 'react';
+import { View, Text, Clipboard, Pressable, Image } from 'react-native';
+import { Video, ResizeMode } from 'expo-av';
 import { Bubble, MessageText } from 'react-native-gifted-chat';
-import { useActionSheet } from '@expo/react-native-action-sheet';
-import { Ionicons } from '@expo/vector-icons';
 import type { ChatMessage } from '../types';
-import { chatStyles as styles, COLORS } from './styles';
+import { chatStyles as styles } from './styles';
 import { isSameUser, isSameDay, getProfileLabel } from './utils';
 import { useTheme } from '@/theme';
+import { MessageActionsPopover } from './MessageActionsPopover';
 
 interface ChatBubbleProps {
   currentMessage: ChatMessage;
@@ -27,12 +27,36 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
   onReply,
   ...props
 }) => {
-  const { showActionSheetWithOptions } = useActionSheet();
   const { colors, palette: themePalette } = useTheme();
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const media = useMemo(() => {
+    const raw = currentMessage._raw ?? (currentMessage as any);
+    if (!raw) return null;
+
+    const image =
+      raw.image?.sizes?.['240x240'] ||
+      raw.image?.original ||
+      raw.content?.post?.images?.[0]?.original ||
+      raw.file?.original;
+
+    const video =
+      (typeof raw.video === 'string' ? raw.video : raw.video?.original || raw.video?.url) ||
+      raw.content?.post?.videos?.[0]?.original;
+
+    if (raw.type === 'video' && video) return { type: 'video' as const, uri: video };
+    if (raw.type === 'image' && image) return { type: 'image' as const, uri: image };
+
+    if (image) return { type: 'image' as const, uri: image };
+    if (video) return { type: 'video' as const, uri: video };
+
+    return null;
+  }, [currentMessage]);
 
   const sameUserMsg = isSameUser(currentMessage, previousMessage);
   const sameDayMsg = isSameDay(currentMessage, previousMessage);
   const sameUserNext = isSameUser(currentMessage, nextMessage);
+  const canShowActions = !media;
 
   const positionOffset = position === 'left' ? { marginLeft: 28 } : { marginRight: 28 };
 
@@ -51,39 +75,23 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
 
   const parentMessage = currentMessage.parentMessage;
 
-  const handleLongPress = useCallback(() => {
-    const options: string[] = [];
-    const icons: React.ReactElement[] = [];
+  const isOwnMessage = position === 'right';
 
-    if (showReplyAction) {
-      options.push('Reply');
-      icons.push(<Ionicons name="arrow-undo" size={20} color={COLORS.text} />);
-    }
-    options.push('Copy');
-    icons.push(<Ionicons name="copy-outline" size={20} color={COLORS.text} />);
-    options.push('Cancel');
-    icons.push(<Ionicons name="close" size={20} color={COLORS.error} />);
+  const handleCopy = useCallback(() => {
+    Clipboard.setString(currentMessage.text ?? '');
+    setMenuVisible(false);
+  }, [currentMessage.text]);
 
-    showActionSheetWithOptions(
-      {
-        options,
-        icons,
-        cancelButtonIndex: options.length - 1,
-        title: 'Message',
-      },
-      (index) => {
-        if (index === undefined) return;
-        if (showReplyAction && index === 0) {
-          onReply?.(currentMessage);
-        } else if (index === (showReplyAction ? 1 : 0)) {
-          Clipboard.setString(currentMessage.text ?? '');
-        }
-      },
-    );
-  }, [showReplyAction, onReply, currentMessage, showActionSheetWithOptions]);
+  const handleReply = useCallback(() => {
+    onReply?.(currentMessage);
+    setMenuVisible(false);
+  }, [onReply, currentMessage]);
 
   const renderMessageText = (textProps: any) => {
     const { isUserBlocked, isHidden } = currentMessage;
+    if (!textProps?.currentMessage?.text) {
+      return null;
+    }
     return (
       <MessageText
         {...textProps}
@@ -99,8 +107,49 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
     );
   };
 
+  const renderCustomView = useCallback(() => {
+    if (!media) return null;
+
+    if (media.type === 'image') {
+      return (
+        <View style={styles.mediaContainer}>
+          <Image source={{ uri: media.uri }} style={styles.mediaImage} resizeMode="cover" />
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.mediaContainer}>
+        <Video
+          source={{ uri: media.uri }}
+          style={styles.mediaVideo}
+          resizeMode={ResizeMode.CONTAIN}
+          useNativeControls
+          isLooping={false}
+        />
+      </View>
+    );
+  }, [media]);
+
   return (
-    <Pressable onLongPress={handleLongPress}>
+    <View style={styles.bubbleRow}>
+      {isOwnMessage && canShowActions && (
+        <MessageActionsPopover
+          visible={menuVisible}
+          onRequestClose={() => setMenuVisible(false)}
+          onCopy={handleCopy}
+          onReply={handleReply}
+          showReply={showReplyAction && !isOwnMessage}
+        >
+          <Pressable
+            onPress={() => setMenuVisible(true)}
+            style={[styles.messageActionButton, styles.messageActionButtonLeft]}
+          >
+            <Text style={[styles.messageActionDots, { color: colors.text.secondary }]}>•••</Text>
+          </Pressable>
+        </MessageActionsPopover>
+      )}
+
       <View
         style={[
           styles.bubbleContainer,
@@ -167,8 +216,26 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
             right: styles.bubbleBottomHidden,
           }}
           renderMessageText={renderMessageText}
+          renderCustomView={renderCustomView}
         />
       </View>
-    </Pressable>
+
+      {!isOwnMessage && canShowActions && (
+        <MessageActionsPopover
+          visible={menuVisible}
+          onRequestClose={() => setMenuVisible(false)}
+          onCopy={handleCopy}
+          onReply={handleReply}
+          showReply={showReplyAction && !isOwnMessage}
+        >
+          <Pressable
+            onPress={() => setMenuVisible(true)}
+            style={[styles.messageActionButton, styles.messageActionButtonRight]}
+          >
+            <Text style={[styles.messageActionDots, { color: colors.text.secondary }]}>•••</Text>
+          </Pressable>
+        </MessageActionsPopover>
+      )}
+    </View>
   );
 };

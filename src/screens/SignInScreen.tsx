@@ -17,7 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
-import { FormInput, Button } from '@/components/ui';
+import { FormInput, Button, Input } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/hooks';
 import { BiometricService, ToastService } from '@/services';
@@ -38,6 +38,8 @@ export function SignInScreen() {
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [biometricType, setBiometricType] = useState('Face ID');
   const [biometricTypeCode, setBiometricTypeCode] = useState<number | null>(null);
+  const [ssoEmail, setSsoEmail] = useState('');
+  const [ssoError, setSsoError] = useState<string | null>(null);
 
   // Post-login prompt state
   const [showBiometricPrompt, setShowBiometricPrompt] = useState(false);
@@ -173,6 +175,23 @@ export function SignInScreen() {
     router.back();
   };
 
+  const handleSsoSignIn = useCallback(() => {
+    const email = ssoEmail.trim();
+    if (!email) {
+      setSsoError('Email is required');
+      return;
+    }
+    if (!EMAIL_REGEX.test(email)) {
+      setSsoError('Please enter a valid email address');
+      return;
+    }
+    setSsoError(null);
+    router.push({
+      pathname: '/sso',
+      params: { email },
+    } as any);
+  }, [ssoEmail]);
+
   const biometricIconName =
     biometricTypeCode === 1 ? 'finger-print-outline' : 'scan-outline';
 
@@ -187,24 +206,18 @@ export function SignInScreen() {
           keyboardShouldPersistTaps="handled"
         >
           {/* Header */}
-          <View style={styles.header}>
+          <View style={[styles.header, { borderBottomColor: colors.border.default }]}>
             <Pressable onPress={handleBack} style={styles.backButton}>
-              <ThemedText style={{ color: colors.interactive.default }}>
-                ← Back
-              </ThemedText>
+              <Ionicons name="chevron-back" size={24} color={colors.text.primary} />
             </Pressable>
+            <View style={styles.headerTitle}>
+              <ThemedText style={styles.headerTitleText}>Sign In</ThemedText>
+            </View>
+            <View style={styles.headerSpacer} />
           </View>
 
           {/* Form */}
           <View style={styles.formContainer}>
-            <ThemedText type="title" style={styles.title}>
-              Sign In
-            </ThemedText>
-
-            <ThemedText style={[styles.subtitle, { color: colors.text.secondary }]}>
-              Welcome back! Please sign in to continue.
-            </ThemedText>
-
             {/* Email input */}
             <FormInput
               control={control}
@@ -291,6 +304,36 @@ export function SignInScreen() {
                 Forgot password?
               </ThemedText>
             </Pressable>
+
+            <View style={styles.dividerRow}>
+              <View style={[styles.dividerLine, { backgroundColor: colors.border.default }]} />
+              <ThemedText style={[styles.dividerText, { color: colors.text.secondary }]}>
+                Or
+              </ThemedText>
+              <View style={[styles.dividerLine, { backgroundColor: colors.border.default }]} />
+            </View>
+
+            <Input
+              label="Work email"
+              placeholder="example@company.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              value={ssoEmail}
+              onChangeText={(value) => {
+                setSsoEmail(value);
+                if (ssoError) setSsoError(null);
+              }}
+              error={ssoError ?? undefined}
+              disabled={isLoading}
+            />
+
+            <Button
+              title="Sign In with SSO"
+              onPress={handleSsoSignIn}
+              disabled={isLoading}
+              size="lg"
+            />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -360,11 +403,23 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 16,
     paddingVertical: 12,
+    borderBottomWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   backButton: {
-    paddingVertical: 8,
-    paddingRight: 16,
-    alignSelf: 'flex-start',
+    padding: 8,
+  },
+  headerTitle: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  headerTitleText: {
+    fontSize: 17,
+    fontWeight: '600',
+  },
+  headerSpacer: {
+    width: 40,
   },
   formContainer: {
     flex: 1,
@@ -402,6 +457,21 @@ const styles = StyleSheet.create({
   forgotPasswordText: {
     fontSize: 14,
     fontWeight: '500',
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 24,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+  },
+  dividerText: {
+    marginHorizontal: 12,
+    fontSize: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   modalOverlay: {
     flex: 1,

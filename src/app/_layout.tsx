@@ -3,7 +3,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Provider } from 'react-redux';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import 'react-native-reanimated';
 
@@ -12,6 +12,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { store } from '@/store';
 import { AuthGuard } from '@/components/AuthGuard';
 import { toastConfig } from '@/components/ToastConfig';
+import { Loader } from '@/components/Loader';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -22,7 +23,7 @@ export default function RootLayout() {
   if (!loaded) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
+        <Loader size="large" />
       </View>
     );
   }
