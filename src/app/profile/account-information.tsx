@@ -1,6 +1,5 @@
-import React, { useCallback, useState, useMemo, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
-  StyleSheet,
   View,
   Pressable,
   ScrollView,
@@ -19,7 +18,7 @@ import { FormInput, Button, Select } from '@/components/ui';
 import type { SelectItem } from '@/components/ui';
 import { MediaPickerSheet } from '@/components/ui/MediaPickerSheet';
 import { Loader } from '@/components/Loader';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import {
   useGetAmbassadorDataQuery,
   useChangeAmbassadorDataMutation,
@@ -36,6 +35,7 @@ interface AccountFormData {
 
 export default function AccountInformationScreen() {
   const { colors, palette, spacing, shapes } = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
@@ -314,7 +314,7 @@ export default function AccountInformationScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography, shapes }) => ({
   container: {
     flex: 1,
   },
@@ -324,80 +324,80 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm * 1.5,
     borderBottomWidth: 1,
   },
   backButton: {
-    padding: 8,
+    padding: spacing.sm,
   },
   headerTitle: {
     flex: 1,
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
     textAlign: 'center',
-    marginRight: 40,
+    marginRight: spacing.xs * 10,
   },
   headerSpacer: {
     width: 0,
   },
   scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 24,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
   },
   avatarSection: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacing.lg,
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 3,
-    marginBottom: 12,
+    width: spacing.xs * 25,
+    height: spacing.xs * 25,
+    borderRadius: shapes.radius.full,
+    borderWidth: spacing.xs * 0.75,
+    marginBottom: spacing.sm * 1.5,
   },
   avatarPlaceholder: {
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarInitials: {
-    fontSize: 36,
-    fontWeight: '600',
+    fontSize: typography.fontSize['3xl'],
+    fontWeight: typography.fontWeight.semibold,
   },
   changePhotoButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    gap: spacing.xs,
+    paddingVertical: spacing.xs * 1.5,
+    paddingHorizontal: spacing.sm * 1.5,
   },
   changePhotoText: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
   },
   formContainer: {
-    gap: 4,
+    gap: spacing.xs,
   },
   emailFieldContainer: {
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   emailLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 8,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
+    marginBottom: spacing.sm,
   },
   emailTrigger: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    minHeight: 48,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    minHeight: spacing.xs * 12,
+    paddingHorizontal: spacing.xs * 3.5,
+    paddingVertical: spacing.sm * 1.5,
   },
   emailText: {
     flex: 1,
-    fontSize: 16,
-    marginRight: 8,
+    fontSize: typography.fontSize.base,
+    marginRight: spacing.sm,
   },
-});
+}));

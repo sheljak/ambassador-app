@@ -3,7 +3,7 @@
  * Wrapper around react-native-toast-message for consistent toast notifications
  */
 
-import Toast, { ToastShowParams } from 'react-native-toast-message';
+import Toast from 'react-native-toast-message';
 
 export type ToastType = 'success' | 'error' | 'info';
 

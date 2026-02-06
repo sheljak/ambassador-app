@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState, useEffect } from 'react';
 import {
-  StyleSheet,
   View,
   FlatList,
   ListRenderItemInfo,
@@ -15,7 +14,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { MessageItem, MessagesSearch, MessagesTabBar } from '@/components/Messages';
 import { Loader } from '@/components/Loader';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import { useLazyGetDialogsQuery } from '@/store/features/dialogs/api';
 import { useGetAccountQuery } from '@/store/features/auth/api';
 import { useAppSelector } from '@/store';
@@ -49,14 +48,9 @@ interface PusherMessageEvent {
   user_id?: number;
 }
 
-interface PusherTabMessageEvent {
-  newMessagesChat: number;
-  newMessagesContentGroup: number;
-  newMessagesFAQ: number;
-}
-
 export default function MessagesScreen() {
   const { colors } = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
   const isFocused = useIsFocused();
@@ -222,7 +216,7 @@ export default function MessagesScreen() {
 
     // Also refresh account unread counts
     // refetchAccount();
-  }, [activeTab, debouncedSearchTerm, refetchAccount]);
+  }, [activeTab, debouncedSearchTerm]);
 
   const getLatestMessage = useCallback((messages?: Dialog['last_message'][] | any[]) => {
     if (!messages || messages.length === 0) return null;
@@ -300,7 +294,7 @@ export default function MessagesScreen() {
 
       return next;
     });
-  }, [activeTab, debouncedSearchTerm]);
+  }, [activeTab, debouncedSearchTerm, getLatestMessage]);
 
   // Initial load & tab/search change
   useEffect(() => {
@@ -537,13 +531,13 @@ export default function MessagesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography }) => ({
   container: {
     flex: 1,
   },
   header: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
   },
   loadingContainer: {
@@ -555,10 +549,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: spacing['2xl'],
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: typography.fontSize.base,
     textAlign: 'center',
   },
   listContent: {
@@ -566,10 +560,10 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: 1,
-    marginLeft: 76,
+    marginLeft: spacing.xs * 19,
   },
   footer: {
-    padding: 16,
+    padding: spacing.md,
     alignItems: 'center',
   },
-});
+}));

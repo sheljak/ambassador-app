@@ -4,11 +4,11 @@ import { chatStyles as styles } from './styles';
 
 interface ChatMenuProps {
   visible: boolean;
-  items: Array<{
+  items: {
     label: string;
     onPress: () => void;
     hidden?: boolean;
-  }>;
+  }[];
 }
 
 export const ChatMenu: React.FC<ChatMenuProps> = ({ visible, items }) => {

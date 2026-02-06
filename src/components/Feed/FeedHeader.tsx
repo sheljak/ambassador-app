@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import type { FeedType } from '@/store/features/feeds/types';
 
 export interface FeedHeaderProps {
@@ -17,6 +17,7 @@ const FEED_OPTIONS: { type: FeedType; label: string }[] = [
 
 const FeedHeader: React.FC<FeedHeaderProps> = ({ selectedType, onTypeChange }) => {
   const { colors, shapes, palette } = useTheme();
+  const styles = useStyles();
 
   return (
     <View style={[styles.container, { borderBottomColor: colors.border.default }]}>
@@ -60,29 +61,29 @@ const FeedHeader: React.FC<FeedHeaderProps> = ({ selectedType, onTypeChange }) =
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography }) => ({
   container: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 16,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.md,
     borderBottomWidth: 1,
   },
   title: {
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 12,
+    gap: spacing.sm * 1.5,
   },
   button: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: spacing.xs * 2.5,
+    paddingHorizontal: spacing.xs * 5,
     borderWidth: 1,
   },
   buttonText: {
-    fontSize: 14,
+    fontSize: typography.fontSize.sm,
   },
-});
+}));
 
 export default React.memo(FeedHeader);

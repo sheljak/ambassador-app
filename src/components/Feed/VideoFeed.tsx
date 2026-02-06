@@ -1,15 +1,16 @@
 import React, { useMemo, useState, useCallback, useRef } from 'react';
-import { View, StyleSheet, Pressable, Modal } from 'react-native';
+import { View, Pressable, Modal } from 'react-native';
 import { Image } from 'expo-image';
 import { Video, ResizeMode, AVPlaybackStatus } from 'expo-av';
 
 import { ThemedText } from '@/components/ThemedText';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import FeedCard from './FeedCard';
 import type { BaseFeedProps } from './types';
 
 const VideoFeed: React.FC<BaseFeedProps> = ({ data }) => {
   const { colors, shapes, palette } = useTheme();
+  const styles = useStyles();
   const videoRef = useRef<Video>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -152,16 +153,16 @@ const VideoFeed: React.FC<BaseFeedProps> = ({ data }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography, shapes }) => ({
   videoContainer: {
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   thumbnailContainer: {
     position: 'relative',
   },
   thumbnail: {
     width: '100%',
-    height: 200,
+    height: spacing.xs * 50,
   },
   placeholderThumbnail: {
     justifyContent: 'center',
@@ -177,37 +178,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   playButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: spacing.xs * 15,
+    height: spacing.xs * 15,
+    borderRadius: shapes.radius.full,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
-    shadowRadius: 4,
+    shadowRadius: spacing.xs,
     elevation: 5,
   },
   playIcon: {
     color: '#FFFFFF',
-    fontSize: 22,
-    marginLeft: 4,
+    fontSize: typography.fontSize.lg,
+    marginLeft: spacing.xs,
   },
   tapHint: {
     position: 'absolute',
-    bottom: 8,
-    right: 8,
+    bottom: spacing.sm,
+    right: spacing.sm,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
   },
   tapHintText: {
     color: '#FFFFFF',
-    fontSize: 11,
+    fontSize: typography.fontSize.xs,
   },
   caption: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: typography.fontSize.sm,
+    lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
   },
   fullscreenContainer: {
     flex: 1,
@@ -217,25 +218,25 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-    top: 50,
-    right: 20,
+    top: spacing.xs * 12.5,
+    right: spacing.xs * 5,
     zIndex: 10,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: spacing.xs * 10,
+    height: spacing.xs * 10,
+    borderRadius: shapes.radius.full,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   closeButtonText: {
     color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.semibold,
   },
   fullscreenVideo: {
     width: '100%',
     height: '100%',
   },
-});
+}));
 
 export default React.memo(VideoFeed);

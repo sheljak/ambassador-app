@@ -1,5 +1,5 @@
 import type { IMessage } from 'react-native-gifted-chat';
-import type { Message, User, ParentMessage, DialogTypeKey } from '@/store/types_that_will_used';
+import type { Message, User, ParentMessage } from '@/store/types_that_will_used';
 
 /**
  * Chat type mapped from DialogTypeKey for per-screen config.
@@ -41,7 +41,7 @@ export interface ChatConfig {
   showSearchNavigator?: boolean;
   showMembers?: boolean;
   isFaq?: boolean;
-  menuItems?: Array<{ label: string; onPress: () => void; hidden?: boolean }>;
+  menuItems?: { label: string; onPress: () => void; hidden?: boolean }[];
 }
 
 /**

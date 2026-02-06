@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { Image } from 'expo-image';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import type { FeedPost } from '@/store/types_that_will_used';
 
 export interface LeadersFeedProps {
@@ -20,8 +20,8 @@ interface Ambassador {
   index: number;
   user_points?: number;
   user_tags?: {
-    profile?: Array<{ key: string }>;
-    subject?: Array<{ name: string }>;
+    profile?: { key: string }[];
+    subject?: { name: string }[];
   };
 }
 
@@ -115,8 +115,11 @@ const AmbassadorCard: React.FC<AmbassadorCardProps> = React.memo(
   }
 );
 
+AmbassadorCard.displayName = 'AmbassadorCard';
+
 const LeadersFeed: React.FC<LeadersFeedProps> = ({ data, selectedIndex, currentUser }) => {
   const { colors, shapes, palette } = useTheme();
+  const styles = useStyles();
   const isMyFeed = selectedIndex === 1;
 
   // Get month name
@@ -202,73 +205,73 @@ const LeadersFeed: React.FC<LeadersFeedProps> = ({ data, selectedIndex, currentU
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography, shapes }) => ({
   container: {
-    marginBottom: 12,
+    marginBottom: spacing.sm * 1.5,
     overflow: 'hidden',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    padding: 16,
-    paddingBottom: 12,
+    padding: spacing.md,
+    paddingBottom: spacing.sm * 1.5,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: spacing.sm * 1.5,
   },
   trophyContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: spacing.xs * 10,
+    height: spacing.xs * 10,
+    borderRadius: shapes.radius.full,
     justifyContent: 'center',
     alignItems: 'center',
   },
   trophyEmoji: {
-    fontSize: 20,
+    fontSize: typography.fontSize.xl,
   },
   subtitle: {
-    fontSize: 12,
-    marginTop: 2,
+    fontSize: typography.fontSize.xs,
+    marginTop: spacing.xs / 2,
   },
   time: {
-    fontSize: 12,
+    fontSize: typography.fontSize.xs,
   },
   content: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.md,
   },
   message: {
-    fontSize: 14,
-    marginBottom: 16,
+    fontSize: typography.fontSize.sm,
+    marginBottom: spacing.md,
   },
   ambassadorsList: {
-    gap: 8,
+    gap: spacing.sm,
   },
   ambassadorCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
-    gap: 12,
+    padding: spacing.sm * 1.5,
+    gap: spacing.sm * 1.5,
   },
   medalContainer: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: spacing.xs * 6,
+    height: spacing.xs * 6,
+    borderRadius: shapes.radius.full,
     justifyContent: 'center',
     alignItems: 'center',
   },
   medalText: {
     color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.bold,
   },
   avatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: spacing.xs * 9,
+    height: spacing.xs * 9,
+    borderRadius: shapes.radius.full,
   },
   avatarPlaceholder: {
     justifyContent: 'center',
@@ -280,29 +283,32 @@ const styles = StyleSheet.create({
   nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing.sm,
   },
   ambassadorName: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
   },
   points: {
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.medium,
   },
   subject: {
-    fontSize: 12,
-    marginTop: 2,
+    fontSize: typography.fontSize.xs,
+    marginTop: spacing.xs / 2,
   },
   medalEmoji: {
-    fontSize: 20,
+    fontSize: typography.fontSize.xl,
   },
   wellDone: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginTop: 16,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
+    marginTop: spacing.md,
     textAlign: 'center',
   },
-});
+}));
 
-export default React.memo(LeadersFeed);
+const MemoLeadersFeed = React.memo(LeadersFeed);
+MemoLeadersFeed.displayName = 'LeadersFeed';
+
+export default MemoLeadersFeed;

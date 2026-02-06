@@ -28,6 +28,7 @@ export {
   type BreakpointKey,
   type BreakpointValue,
 } from './breakpoints';
+export { createStyles } from './createStyles';
 
 // Hook exports
 export { useTheme, getThemeColors, type Theme } from './hooks/useTheme';

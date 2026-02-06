@@ -6,13 +6,12 @@ import {
   Modal,
   Animated,
   StyleSheet,
-  Dimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles, spacing as spacingTokens } from '@/theme';
 
-const SHEET_HEIGHT = 320;
+const SHEET_HEIGHT = spacingTokens.xs * 80;
 
 interface MediaPickerSheetProps {
   visible: boolean;
@@ -28,6 +27,7 @@ export function MediaPickerSheet({
   onLibrary,
 }: MediaPickerSheetProps) {
   const { colors, shapes } = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
 
   const slideAnim = useRef(new Animated.Value(SHEET_HEIGHT + insets.bottom)).current;
@@ -192,7 +192,7 @@ export function MediaPickerSheet({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography, shapes }) => ({
   container: {
     flex: 1,
     justifyContent: 'flex-end',
@@ -202,37 +202,37 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.4)',
   },
   sheet: {
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.md,
   },
   handleRow: {
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: spacing.xs * 2.5,
   },
   handle: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
+    width: spacing.xs * 9,
+    height: spacing.xs,
+    borderRadius: shapes.radius.sm,
   },
   title: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   options: {
-    gap: 10,
-    marginBottom: 12,
+    gap: spacing.xs * 2.5,
+    marginBottom: spacing.sm * 1.5,
   },
   option: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 14,
-    gap: 12,
+    padding: spacing.xs * 3.5,
+    gap: spacing.sm * 1.5,
   },
   iconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: spacing.xs * 11,
+    height: spacing.xs * 11,
+    borderRadius: shapes.radius.full,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -240,19 +240,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   optionLabel: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.medium,
   },
   optionHint: {
-    fontSize: 12,
-    marginTop: 2,
+    fontSize: typography.fontSize.xs,
+    marginTop: spacing.xs / 2,
   },
   cancelBtn: {
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: spacing.md,
   },
   cancelText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
   },
-});
+}));

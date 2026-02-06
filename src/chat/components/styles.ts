@@ -1,5 +1,5 @@
 import { StyleSheet, Dimensions, Platform } from 'react-native';
-import { palette } from '@/theme/colors';
+import { palette, spacing, shapes, typography } from '@/theme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('screen');
 
@@ -21,29 +21,14 @@ export const COLORS = {
   sentBubbleBg: palette.primary[50],   // #E6F7FA (light teal)
 } as const;
 
-export const SPACING = {
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
-  xxl: 24,
-} as const;
-
-export const RADIUS = {
-  sm: 4,
-  md: 8,
-  lg: 12,
-  xl: 16,
-  xxl: 20,
-} as const;
-
+export const SPACING = spacing;
+export const RADIUS = shapes.radius;
 export const TYPOGRAPHY = {
-  messageFontSize: 15,
-  messageLineHeight: 20,
-  nameFontSize: 10,
-  timeFontSize: 10,
-  systemFontSize: 14,
+  messageFontSize: typography.fontSize.sm,
+  messageLineHeight: typography.fontSize.sm * typography.lineHeight.normal,
+  nameFontSize: typography.fontSize.xs,
+  timeFontSize: typography.fontSize.xs,
+  systemFontSize: typography.fontSize.sm,
 } as const;
 
 export const chatStyles = StyleSheet.create({
@@ -71,20 +56,20 @@ export const chatStyles = StyleSheet.create({
     shadowOpacity: 0,
   },
   sendButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: SPACING.xs * 7,
+    height: SPACING.xs * 7,
+    borderRadius: RADIUS.full,
     backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
-    marginLeft: 10,
-    marginRight: 10,
+    marginBottom: SPACING.sm,
+    marginLeft: SPACING.xs * 2.5,
+    marginRight: SPACING.xs * 2.5,
   },
 
   // System message
   systemMessageContainer: {
-    marginBottom: 15,
+    marginBottom: SPACING.xs * 3.75,
   },
   systemMessageText: {
     fontSize: TYPOGRAPHY.systemFontSize,
@@ -92,14 +77,14 @@ export const chatStyles = StyleSheet.create({
     color: COLORS.systemMessage,
   },
   systemMessageWrapper: {
-    maxWidth: 280,
+    maxWidth: SPACING.xs * 70,
   },
 
   // Avatar
   avatarContainerLeft: {
     paddingTop: 0,
-    marginRight: 8,
-    marginLeft: 8,
+    marginRight: SPACING.sm,
+    marginLeft: SPACING.sm,
     shadowColor: 'rgba(0, 0, 0, 0.04)',
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 6,
@@ -107,16 +92,16 @@ export const chatStyles = StyleSheet.create({
   },
   avatarContainerRight: {
     paddingTop: 0,
-    marginLeft: 8,
+    marginLeft: SPACING.sm,
     shadowColor: 'rgba(0, 0, 0, 0.04)',
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 6,
     shadowOpacity: 1,
   },
   avatarImage: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: SPACING.xs * 12,
+    height: SPACING.xs * 12,
+    borderRadius: RADIUS.full,
   },
 
   // Bubble
@@ -218,7 +203,7 @@ export const chatStyles = StyleSheet.create({
 
   // Message text
   messageTextContainer: {
-    maxWidth: SCREEN_WIDTH - 130,
+    maxWidth: SCREEN_WIDTH - SPACING.xs * 32.5,
     marginBottom: SPACING.sm,
   },
   messageText: {
@@ -252,18 +237,18 @@ export const chatStyles = StyleSheet.create({
     backgroundColor: COLORS.border,
   },
   mediaImage: {
-    width: 220,
-    height: 180,
+    width: SPACING.xs * 55,
+    height: SPACING.xs * 45,
   },
   mediaVideo: {
-    width: 240,
-    height: 180,
+    width: SPACING.xs * 60,
+    height: SPACING.xs * 45,
   },
 
   // Reply message in bubble
   replyMessageContainer: {
     backgroundColor: COLORS.surface,
-    borderLeftWidth: 3,
+    borderLeftWidth: SPACING.xs * 0.75,
     borderLeftColor: COLORS.primary,
     borderRadius: RADIUS.sm,
     padding: SPACING.sm,
@@ -271,13 +256,13 @@ export const chatStyles = StyleSheet.create({
     marginTop: SPACING.sm,
   },
   replyMessageName: {
-    fontSize: 12,
-    fontWeight: '600' as const,
+    fontSize: TYPOGRAPHY.nameFontSize,
+    fontWeight: typography.fontWeight.semibold,
     color: COLORS.primary,
-    marginBottom: 2,
+    marginBottom: SPACING.xs / 2,
   },
   replyMessageText: {
-    fontSize: 13,
+    fontSize: TYPOGRAPHY.messageFontSize,
     color: COLORS.textSecondary,
   },
 
@@ -293,23 +278,23 @@ export const chatStyles = StyleSheet.create({
   replyFooterSeparator: {
     width: 3,
     height: '100%' as any,
-    minHeight: 40,
+    minHeight: SPACING.xs * 10,
     backgroundColor: COLORS.primary,
-    borderRadius: 2,
+    borderRadius: RADIUS.sm,
     marginRight: SPACING.md,
   },
   replyFooterContent: {
     flex: 1,
-    maxHeight: 60,
+    maxHeight: SPACING.xs * 15,
   },
   replyFooterName: {
-    fontSize: 12,
-    fontWeight: '600' as const,
+    fontSize: TYPOGRAPHY.nameFontSize,
+    fontWeight: typography.fontWeight.semibold,
     color: COLORS.primary,
-    marginBottom: 2,
+    marginBottom: SPACING.xs / 2,
   },
   replyFooterText: {
-    fontSize: 13,
+    fontSize: TYPOGRAPHY.messageFontSize,
     color: COLORS.textSecondary,
   },
   dismissButton: {
@@ -318,7 +303,7 @@ export const chatStyles = StyleSheet.create({
 
   // Closed/archived banner
   closedBanner: {
-    paddingVertical: 15,
+    paddingVertical: SPACING.xs * 3.75,
     position: 'absolute' as const,
     bottom: 0,
     left: 0,
@@ -326,13 +311,13 @@ export const chatStyles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   closedBannerText: {
-    fontSize: 15,
+    fontSize: TYPOGRAPHY.messageFontSize,
     fontWeight: 'normal' as const,
-    lineHeight: 20,
+    lineHeight: TYPOGRAPHY.messageLineHeight,
     letterSpacing: -0.3,
     textAlign: 'center' as const,
-    color: '#4a4a4a',
-    marginHorizontal: 10,
+    color: COLORS.textSecondary,
+    marginHorizontal: SPACING.xs * 2.5,
   },
   reportedLink: {
     color: COLORS.primary,
@@ -352,7 +337,7 @@ export const chatStyles = StyleSheet.create({
       ios: {
         shadowColor: COLORS.black,
         shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 8,
+        shadowRadius: SPACING.sm,
         shadowOpacity: 0.2,
       },
       android: {
@@ -361,17 +346,17 @@ export const chatStyles = StyleSheet.create({
     }),
   },
   menuItem: {
-    minWidth: 60,
+    minWidth: SPACING.xs * 15,
     backgroundColor: 'transparent',
-    paddingHorizontal: 25,
-    paddingVertical: 12,
+    paddingHorizontal: SPACING.xs * 6.25,
+    paddingVertical: SPACING.sm * 1.5,
   },
   menuItemBorder: {
     borderBottomWidth: 1,
     borderBottomColor: COLORS.menuSeparator,
   },
   menuItemText: {
-    fontSize: 14,
+    fontSize: TYPOGRAPHY.messageFontSize,
     fontWeight: 'normal' as const,
     color: COLORS.white,
   },
@@ -380,30 +365,30 @@ export const chatStyles = StyleSheet.create({
   header: {
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
-    paddingHorizontal: 8,
-    paddingVertical: 12,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.sm * 1.5,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
   },
   headerBtn: {
-    padding: 8,
+    padding: SPACING.sm,
   },
   headerTitle: {
     flex: 1,
-    marginLeft: 4,
+    marginLeft: SPACING.xs,
   },
   headerTitleText: {
-    fontSize: 17,
-    fontWeight: '600' as const,
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
     color: COLORS.text,
   },
 
   // Pinned dot
   pinnedDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: SPACING.sm,
+    height: SPACING.sm,
+    borderRadius: RADIUS.full,
     backgroundColor: COLORS.primary,
-    marginRight: 4,
+    marginRight: SPACING.xs,
   },
 });

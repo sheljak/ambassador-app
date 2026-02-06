@@ -1,6 +1,20 @@
 import { Platform, Alert, Linking } from 'react-native';
-import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+
+type NotificationsModule = typeof import('expo-notifications');
+let notificationsModule: NotificationsModule | null = null;
+
+const getNotifications = async (): Promise<NotificationsModule | null> => {
+  if (notificationsModule) return notificationsModule;
+  try {
+    // eslint-disable-next-line import/no-unresolved
+    notificationsModule = await import('expo-notifications');
+    return notificationsModule;
+  } catch (error) {
+    console.warn('expo-notifications is not installed.', error);
+    return null;
+  }
+};
 
 export const NotificationService = {
   /**
@@ -14,6 +28,9 @@ export const NotificationService = {
       // Push notifications don't work on simulators
       return false;
     }
+
+    const Notifications = await getNotifications();
+    if (!Notifications) return false;
 
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
 
@@ -43,6 +60,8 @@ export const NotificationService = {
    */
   async getPermissionStatus(): Promise<'granted' | 'denied' | 'undetermined'> {
     if (!Device.isDevice) return 'denied';
+    const Notifications = await getNotifications();
+    if (!Notifications) return 'denied';
     const { status } = await Notifications.getPermissionsAsync();
     return status;
   },
@@ -53,6 +72,9 @@ export const NotificationService = {
    */
   async getExpoPushToken(): Promise<string | null> {
     if (!Device.isDevice) return null;
+
+    const Notifications = await getNotifications();
+    if (!Notifications) return null;
 
     const { status } = await Notifications.getPermissionsAsync();
     if (status !== 'granted') return null;
@@ -69,7 +91,10 @@ export const NotificationService = {
   /**
    * Configure notification handler (how notifications appear when app is in foreground).
    */
-  configure() {
+  async configure() {
+    const Notifications = await getNotifications();
+    if (!Notifications) return;
+
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
         shouldShowAlert: true,

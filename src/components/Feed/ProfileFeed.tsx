@@ -1,20 +1,20 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 
 import { ThemedText } from '@/components/ThemedText';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import type { BaseFeedProps } from './types';
 
 const { width } = Dimensions.get('window');
 
 interface UserTags {
-  profile?: Array<{ key: string; name?: string }>;
-  subject?: Array<{ name: string }>;
-  courses_types?: Array<{ name: string }>;
-  countries?: Array<{ code: string }>;
-  interests?: Array<{ name: string }>;
-  job_role?: Array<{ name: string }>;
+  profile?: { key: string; name?: string }[];
+  subject?: { name: string }[];
+  courses_types?: { name: string }[];
+  countries?: { code: string }[];
+  interests?: { name: string }[];
+  job_role?: { name: string }[];
 }
 
 interface ProfileUser {
@@ -32,6 +32,7 @@ interface ProfileUser {
 
 const ProfileFeed: React.FC<BaseFeedProps> = ({ data }) => {
   const { colors, shapes, palette } = useTheme();
+  const styles = useStyles();
   const user = data.user as ProfileUser | undefined;
 
   const avatarUrl = useMemo(() => {
@@ -158,26 +159,26 @@ const ProfileFeed: React.FC<BaseFeedProps> = ({ data }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography, shapes }) => ({
   container: {
-    width: width - 32,
-    marginBottom: 12,
+    width: width - spacing.xs * 8,
+    marginBottom: spacing.sm * 1.5,
   },
   card: {
     overflow: 'hidden',
   },
   banner: {
-    height: 80,
+    height: spacing.xs * 20,
   },
   avatarContainer: {
     alignItems: 'center',
-    marginTop: -50,
+    marginTop: -spacing.xs * 12.5,
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 4,
+    width: spacing.xs * 25,
+    height: spacing.xs * 25,
+    borderRadius: shapes.radius.full,
+    borderWidth: spacing.xs,
   },
   avatarPlaceholder: {
     justifyContent: 'center',
@@ -185,75 +186,75 @@ const styles = StyleSheet.create({
     overflow: 'visible',
   },
   avatarInitial: {
-    fontSize: 36,
-    fontWeight: '600',
-    lineHeight: 42,
+    fontSize: typography.fontSize['3xl'],
+    fontWeight: typography.fontWeight.semibold,
+    lineHeight: typography.fontSize['3xl'] * typography.lineHeight.tight,
     textAlign: 'center',
   },
   content: {
-    padding: 16,
+    padding: spacing.md,
     alignItems: 'center',
   },
   userName: {
-    fontSize: 22,
-    fontWeight: '600',
-    marginBottom: 8,
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.semibold,
+    marginBottom: spacing.sm,
   },
   subjectWrap: {
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    marginBottom: 8,
-    gap: 8,
+    marginBottom: spacing.sm,
+    gap: spacing.sm,
   },
   subject: {
-    fontSize: 14,
+    fontSize: typography.fontSize.sm,
   },
   badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs / 2,
+    borderRadius: shapes.radius.sm,
   },
   badgeText: {
     color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.medium,
   },
   region: {
-    fontSize: 14,
-    marginBottom: 12,
+    fontSize: typography.fontSize.sm,
+    marginBottom: spacing.sm * 1.5,
   },
   description: {
-    fontSize: 14,
+    fontSize: typography.fontSize.sm,
     textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 16,
+    lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
+    marginBottom: spacing.md,
   },
   interestsSection: {
     width: '100%',
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   interestsLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    marginBottom: 8,
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.semibold,
+    marginBottom: spacing.sm,
     textAlign: 'center',
   },
   interestsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    gap: 6,
+    gap: spacing.xs * 1.5,
   },
   interestTag: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: spacing.xs * 2.5,
+    paddingVertical: spacing.xs,
+    borderRadius: shapes.radius.lg,
   },
   interestText: {
-    fontSize: 12,
+    fontSize: typography.fontSize.xs,
   },
-});
+}));
 
 export default React.memo(ProfileFeed);

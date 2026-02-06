@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 
 export interface SelectItem {
   id: number | string;
@@ -43,6 +43,7 @@ export function Select({
   allowCustom = false,
 }: SelectProps) {
   const { colors, shapes } = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const [visible, setVisible] = useState(false);
   const [search, setSearch] = useState('');
@@ -234,13 +235,19 @@ export function Select({
                   style={({ pressed }) => [
                     styles.optionItem,
                     styles.addCustomItem,
+                    { borderTopColor: colors.border.default },
                     pressed && { backgroundColor: colors.background.tertiary },
                   ]}
                   onPress={handleAddCustom}
                 >
-                  <Ionicons name="add-circle-outline" size={20} color={colors.interactive.default} style={{ marginRight: 8 }} />
+                  <Ionicons
+                    name="add-circle-outline"
+                    size={20}
+                    color={colors.interactive.default}
+                    style={styles.addIcon}
+                  />
                   <Text style={[styles.optionText, { color: colors.interactive.default }]}>
-                    Add "{search.trim()}"
+                    {`Add "${search.trim()}"`}
                   </Text>
                 </Pressable>
               ) : null
@@ -251,13 +258,19 @@ export function Select({
                   style={({ pressed }) => [
                     styles.optionItem,
                     styles.addCustomItem,
+                    { borderTopColor: colors.border.default },
                     pressed && { backgroundColor: colors.background.tertiary },
                   ]}
                   onPress={handleAddCustom}
                 >
-                  <Ionicons name="add-circle-outline" size={20} color={colors.interactive.default} style={{ marginRight: 8 }} />
+                  <Ionicons
+                    name="add-circle-outline"
+                    size={20}
+                    color={colors.interactive.default}
+                    style={styles.addIcon}
+                  />
                   <Text style={[styles.optionText, { color: colors.interactive.default }]}>
-                    Add "{search.trim()}"
+                    {`Add "${search.trim()}"`}
                   </Text>
                 </Pressable>
               ) : (
@@ -275,32 +288,32 @@ export function Select({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography }) => ({
   container: {
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 8,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
+    marginBottom: spacing.sm,
   },
   trigger: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    minHeight: 48,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    minHeight: spacing.xs * 12,
+    paddingHorizontal: spacing.xs * 3.5,
+    paddingVertical: spacing.sm * 1.5,
   },
   triggerText: {
     flex: 1,
-    fontSize: 16,
-    marginRight: 8,
+    fontSize: typography.fontSize.base,
+    marginRight: spacing.sm,
   },
   error: {
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: typography.fontSize.xs,
+    marginTop: spacing.xs,
   },
   modalContainer: {
     flex: 1,
@@ -309,62 +322,64 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.sm * 1.5,
     borderBottomWidth: 1,
   },
   modalTitle: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
   },
   closeButton: {
     position: 'absolute',
-    right: 16,
-    bottom: 12,
-    padding: 4,
+    right: spacing.md,
+    bottom: spacing.sm * 1.5,
+    padding: spacing.xs,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    minHeight: 44,
-    marginHorizontal: 16,
-    marginTop: 12,
-    marginBottom: 8,
+    minHeight: spacing.xs * 11,
+    marginHorizontal: spacing.md,
+    marginTop: spacing.sm * 1.5,
+    marginBottom: spacing.sm,
   },
   searchIcon: {
-    paddingLeft: 12,
-    paddingRight: 8,
+    paddingLeft: spacing.sm * 1.5,
+    paddingRight: spacing.sm,
   },
   searchInput: {
     flex: 1,
-    fontSize: 15,
-    paddingVertical: 10,
-    paddingRight: 8,
+    fontSize: typography.fontSize.sm,
+    paddingVertical: spacing.xs * 2.5,
+    paddingRight: spacing.sm,
   },
   clearButton: {
-    paddingHorizontal: 10,
+    paddingHorizontal: spacing.xs * 2.5,
   },
   optionItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs * 3.5,
   },
   optionText: {
-    fontSize: 15,
+    fontSize: typography.fontSize.sm,
     flex: 1,
   },
   addCustomItem: {
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: 'rgba(0,0,0,0.1)',
+  },
+  addIcon: {
+    marginRight: spacing.sm,
   },
   emptyContainer: {
-    paddingVertical: 32,
+    paddingVertical: spacing.xs * 8,
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: 15,
+    fontSize: typography.fontSize.sm,
   },
-});
+}));

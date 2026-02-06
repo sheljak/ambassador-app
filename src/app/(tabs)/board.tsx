@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo, useRef, memo } from 'react';
 import {
-  StyleSheet,
   View,
   FlatList,
   RefreshControl,
@@ -14,7 +13,7 @@ import { useSelector } from 'react-redux';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { Loader } from '@/components/Loader';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles, spacing as spacingTokens } from '@/theme';
 import { useLazyGetLeaderboardQuery } from '@/store/features/leaderboard';
 import { prepareSubjectInfo } from '@/helpers/common';
 import type { LeaderboardAmbassador } from '@/store/types_that_will_used';
@@ -22,7 +21,147 @@ import type { RootState } from '@/store';
 
 const LEADERBOARD_LIMIT = 200; // API returns all at once
 const DISPLAY_BATCH = 20; // Show items in batches for smooth scrolling
-const ITEM_HEIGHT = 72; // Fixed height for getItemLayout
+const ITEM_HEIGHT = spacingTokens.xs * 18; // Fixed height for getItemLayout
+
+const useStyles = createStyles(({ spacing, typography, shapes }) => ({
+  container: {
+    flex: 1,
+  },
+  header: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    borderBottomWidth: 1,
+  },
+  leadersContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'flex-start',
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.sm,
+  },
+  leaderContainer: {
+    alignItems: 'center',
+    width: spacing.xs * 25,
+  },
+  pointsText: {
+    fontWeight: typography.fontWeight.bold,
+    marginBottom: spacing.sm,
+  },
+  avatarContainer: {
+    position: 'relative',
+  },
+  avatar: {
+    width: '100%',
+    height: '100%',
+  },
+  avatarPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarInitial: {
+    fontWeight: typography.fontWeight.semibold,
+  },
+  rankBadge: {
+    position: 'absolute',
+    bottom: -spacing.xs,
+    right: -spacing.xs,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: spacing.xs / 2,
+  },
+  rankText: {
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.bold,
+  },
+  leaderName: {
+    marginTop: spacing.sm,
+    fontWeight: typography.fontWeight.semibold,
+    textAlign: 'center',
+  },
+  subjectText: {
+    fontSize: typography.fontSize.xs,
+    textAlign: 'center',
+    marginTop: spacing.xs / 2,
+    paddingHorizontal: spacing.xs,
+  },
+  listContent: {
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.lg,
+    flexGrow: 1,
+  },
+  ambassadorCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.sm * 1.5,
+    marginBottom: spacing.sm,
+    height: ITEM_HEIGHT,
+  },
+  ambassadorRank: {
+    width: spacing.xs * 8,
+    height: spacing.xs * 8,
+    borderRadius: shapes.radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.sm * 1.5,
+  },
+  ambassadorRankText: {
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
+  },
+  ambassadorAvatar: {
+    width: spacing.xs * 10,
+    height: spacing.xs * 10,
+    borderRadius: shapes.radius.full,
+    marginRight: spacing.sm * 1.5,
+  },
+  ambassadorAvatarPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ambassadorInfo: {
+    flex: 1,
+  },
+  ambassadorName: {
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
+  },
+  ambassadorSubject: {
+    fontSize: typography.fontSize.xs,
+    marginTop: spacing.xs / 2,
+  },
+  ambassadorPoints: {
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.bold,
+    marginLeft: spacing.sm,
+  },
+  currentAmbassadorSection: {
+    marginTop: spacing.sm,
+  },
+  divider: {
+    height: 1,
+    marginBottom: spacing.md,
+  },
+  footerLoader: {
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: spacing['2xl'],
+  },
+  emptyEmoji: {
+    fontSize: typography.fontSize['3xl'],
+    marginBottom: spacing.md,
+  },
+  emptyText: {
+    textAlign: 'center',
+    fontSize: typography.fontSize.base,
+  },
+}));
+
+type Styles = ReturnType<typeof useStyles>;
 
 // Memoized Ambassador Card Component
 interface AmbassadorCardProps {
@@ -30,9 +169,10 @@ interface AmbassadorCardProps {
   colors: any;
   shapes: any;
   palette: any;
+  styles: Styles;
 }
 
-const AmbassadorCard = memo<AmbassadorCardProps>(({ item, colors, shapes, palette }) => {
+const AmbassadorCard = memo<AmbassadorCardProps>(({ item, colors, shapes, palette, styles }) => {
   const subjectInfo = prepareSubjectInfo(item);
 
   return (
@@ -120,9 +260,10 @@ interface LeaderCardProps {
   isFirst: boolean;
   colors: any;
   palette: any;
+  styles: Styles;
 }
 
-const LeaderCard = memo<LeaderCardProps>(({ ambassador, isFirst, colors, palette }) => {
+const LeaderCard = memo<LeaderCardProps>(({ ambassador, isFirst, colors, palette, styles }) => {
   const avatarSize = isFirst ? 80 : 64;
   const badgeSize = isFirst ? 28 : 24;
   const marginTop = isFirst ? 0 : 24;
@@ -227,6 +368,7 @@ LeaderCard.displayName = 'LeaderCard';
 
 export default function LeaderboardScreen() {
   const { colors, shapes, palette } = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
 
@@ -244,7 +386,7 @@ export default function LeaderboardScreen() {
   const [currentAmbassador, setCurrentAmbassador] = useState<LeaderboardAmbassador | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const [fetchLeaderboard, { isLoading, isFetching }] = useLazyGetLeaderboardQuery();
+  const [fetchLeaderboard, { isLoading }] = useLazyGetLeaderboardQuery();
 
   // Only show items up to displayCount for smooth scrolling
   const nextLeaders = useMemo(
@@ -263,8 +405,6 @@ export default function LeaderboardScreen() {
 
         if (result.success && result.data) {
           const allAmbassadors = result.data.ambassadorData || [];
-          const newTotal = result.data.total || 0;
-
           // Mark current ambassador (use ref to avoid dependency on currentUserId)
           const marked = allAmbassadors.map((amb) => ({
             ...amb,
@@ -329,9 +469,10 @@ export default function LeaderboardScreen() {
         colors={colors}
         shapes={shapes}
         palette={palette}
+        styles={styles}
       />
     ),
-    [colors, shapes, palette]
+    [colors, shapes, palette, styles]
   );
 
   // Key extractor
@@ -367,6 +508,7 @@ export default function LeaderboardScreen() {
                 isFirst={false}
                 colors={colors}
                 palette={palette}
+                styles={styles}
               />
             )}
             {firstPlace && (
@@ -375,6 +517,7 @@ export default function LeaderboardScreen() {
                 isFirst={true}
                 colors={colors}
                 palette={palette}
+                styles={styles}
               />
             )}
             {thirdPlace && (
@@ -383,13 +526,14 @@ export default function LeaderboardScreen() {
                 isFirst={false}
                 colors={colors}
                 palette={palette}
+                styles={styles}
               />
             )}
           </View>
         )}
       </View>
     );
-  }, [leaders, isLoading, colors, palette]);
+  }, [leaders, isLoading, colors, palette, styles]);
 
   const hasMore = displayCount < allNextLeaders.length;
 
@@ -410,6 +554,7 @@ export default function LeaderboardScreen() {
               colors={colors}
               shapes={shapes}
               palette={palette}
+              styles={styles}
             />
           </View>
         )}
@@ -420,7 +565,7 @@ export default function LeaderboardScreen() {
         )}
       </>
     );
-  }, [currentAmbassador, nextLeaders, hasMore, colors, shapes, palette]);
+  }, [currentAmbassador, nextLeaders, hasMore, colors, shapes, palette, styles]);
 
   // Empty state
   const ListEmpty = useMemo(() => {
@@ -440,7 +585,7 @@ export default function LeaderboardScreen() {
         </ThemedText>
       </View>
     );
-  }, [isLoading, colors, palette]);
+  }, [isLoading, colors, styles]);
 
   return (
     <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
@@ -479,143 +624,3 @@ export default function LeaderboardScreen() {
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-  },
-  leadersContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'flex-start',
-    paddingVertical: 24,
-    paddingHorizontal: 8,
-  },
-  leaderContainer: {
-    alignItems: 'center',
-    width: 100,
-  },
-  pointsText: {
-    fontWeight: '700',
-    marginBottom: 8,
-  },
-  avatarContainer: {
-    position: 'relative',
-  },
-  avatar: {
-    width: '100%',
-    height: '100%',
-  },
-  avatarPlaceholder: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarInitial: {
-    fontWeight: '600',
-  },
-  rankBadge: {
-    position: 'absolute',
-    bottom: -4,
-    right: -4,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-  },
-  rankText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  leaderName: {
-    marginTop: 8,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  subjectText: {
-    fontSize: 11,
-    textAlign: 'center',
-    marginTop: 2,
-    paddingHorizontal: 4,
-  },
-  listContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 24,
-    flexGrow: 1,
-  },
-  ambassadorCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    marginBottom: 8,
-    height: ITEM_HEIGHT,
-  },
-  ambassadorRank: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  ambassadorRankText: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  ambassadorAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 12,
-  },
-  ambassadorAvatarPlaceholder: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ambassadorInfo: {
-    flex: 1,
-  },
-  ambassadorName: {
-    fontSize: 15,
-    fontWeight: '500',
-  },
-  ambassadorSubject: {
-    fontSize: 12,
-    marginTop: 2,
-  },
-  ambassadorPoints: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginLeft: 8,
-  },
-  currentAmbassadorSection: {
-    marginTop: 8,
-  },
-  divider: {
-    height: 1,
-    marginBottom: 16,
-  },
-  footerLoader: {
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 48,
-  },
-  emptyEmoji: {
-    fontSize: 48,
-    marginBottom: 16,
-  },
-  emptyText: {
-    textAlign: 'center',
-    fontSize: 16,
-  },
-});

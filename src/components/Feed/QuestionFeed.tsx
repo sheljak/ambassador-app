@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import FeedCard from './FeedCard';
 import type { BaseFeedProps } from './types';
 
@@ -12,6 +12,7 @@ interface QuestionFeedProps extends BaseFeedProps {
 
 const QuestionFeed: React.FC<QuestionFeedProps> = ({ data, onAddAnswer }) => {
   const { colors, shapes, palette } = useTheme();
+  const styles = useStyles();
 
   // Check if addAnswer button should be shown
   const showAddAnswer = (data as any).addAnswer === true;
@@ -41,7 +42,7 @@ const QuestionFeed: React.FC<QuestionFeedProps> = ({ data, onAddAnswer }) => {
           ?
         </ThemedText>
         <ThemedText style={[styles.questionText, { color: colors.text.primary }]}>
-          "{questionText}"
+          {`"${questionText}"`}
         </ThemedText>
       </View>
 
@@ -67,34 +68,34 @@ const QuestionFeed: React.FC<QuestionFeedProps> = ({ data, onAddAnswer }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography }) => ({
   questionContainer: {
-    padding: 12,
-    borderLeftWidth: 4,
+    padding: spacing.sm * 1.5,
+    borderLeftWidth: spacing.xs,
     flexDirection: 'row',
-    gap: 8,
+    gap: spacing.sm,
   },
   questionMark: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: typography.fontSize['2xl'],
+    fontWeight: typography.fontWeight.bold,
   },
   questionText: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: typography.fontSize.sm,
+    lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
     flex: 1,
     fontStyle: 'italic',
   },
   addAnswerButton: {
-    marginTop: 10,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    marginTop: spacing.xs * 2.5,
+    paddingVertical: spacing.xs * 1.5,
+    paddingHorizontal: spacing.sm * 1.5,
     alignSelf: 'flex-start',
     borderWidth: 1,
   },
   addAnswerText: {
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.medium,
   },
-});
+}));
 
 export default React.memo(QuestionFeed);

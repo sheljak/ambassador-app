@@ -1,9 +1,9 @@
 import React, { memo, useCallback, useMemo } from 'react';
-import { View, StyleSheet, Pressable, Image, Text } from 'react-native';
+import { View, Pressable, Image, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { ThemedText } from '@/components/ThemedText';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles, spacing as spacingTokens } from '@/theme';
 import type { Dialog, DialogTypeKey } from '@/store/types_that_will_used';
 import { formatRelativeTime } from '@/helpers/common';
 
@@ -53,8 +53,8 @@ interface MessageItemProps {
   onPress: (dialog: Dialog) => void;
 }
 
-const AVATAR_SIZE = 48;
-const SMALL_AVATAR_SIZE = 32;
+const AVATAR_SIZE = spacingTokens.xs * 12;
+const SMALL_AVATAR_SIZE = spacingTokens.xs * 8;
 
 // Get dialog type display info
 const getDialogTypeInfo = (typeKey?: DialogTypeKey): { label: string; routeType: string; defaultMessage: string } => {
@@ -123,6 +123,7 @@ const getLastMessageText = (item: Dialog, defaultMessage: string): string => {
 
 const MessageItem: React.FC<MessageItemProps> = ({ item, searchTerm, onPress }) => {
   const { colors, palette } = useTheme();
+  const styles = useStyles();
   const highlightColor = palette.primary[100] ?? '#FFF3CD';
 
   const typeInfo = useMemo(() => getDialogTypeInfo(item.dialog_type_key), [item.dialog_type_key]);
@@ -307,11 +308,11 @@ const MessageItem: React.FC<MessageItemProps> = ({ item, searchTerm, onPress }) 
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography, shapes }) => ({
   container: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm * 1.5,
   },
   disabled: {
     opacity: 0.4,
@@ -319,12 +320,12 @@ const styles = StyleSheet.create({
   avatarContainer: {
     width: AVATAR_SIZE,
     height: AVATAR_SIZE,
-    marginRight: 12,
+    marginRight: spacing.sm * 1.5,
   },
   avatar: {
     width: AVATAR_SIZE,
     height: AVATAR_SIZE,
-    borderRadius: AVATAR_SIZE / 2,
+    borderRadius: shapes.radius.full,
   },
   groupAvatarContainer: {
     width: AVATAR_SIZE,
@@ -334,7 +335,7 @@ const styles = StyleSheet.create({
   groupAvatar: {
     width: SMALL_AVATAR_SIZE,
     height: SMALL_AVATAR_SIZE,
-    borderRadius: SMALL_AVATAR_SIZE / 2,
+    borderRadius: shapes.radius.full,
     position: 'absolute',
   },
   groupAvatarFirst: {
@@ -352,13 +353,13 @@ const styles = StyleSheet.create({
   defaultAvatar: {
     width: AVATAR_SIZE,
     height: AVATAR_SIZE,
-    borderRadius: AVATAR_SIZE / 2,
+    borderRadius: shapes.radius.full,
     justifyContent: 'center',
     alignItems: 'center',
   },
   defaultAvatarText: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.semibold,
   },
   content: {
     flex: 1,
@@ -368,16 +369,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   name: {
     flex: 1,
-    fontSize: 16,
-    fontWeight: '600',
-    marginRight: 8,
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
+    marginRight: spacing.sm,
   },
   time: {
-    fontSize: 12,
+    fontSize: typography.fontSize.xs,
   },
   bottomRow: {
     flexDirection: 'row',
@@ -386,42 +387,42 @@ const styles = StyleSheet.create({
   },
   message: {
     flex: 1,
-    fontSize: 14,
-    marginRight: 8,
+    fontSize: typography.fontSize.sm,
+    marginRight: spacing.sm,
   },
   blockedBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs / 2,
+    borderRadius: shapes.radius.sm,
   },
   blockedText: {
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.medium,
   },
   infoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   typeLabel: {
-    fontSize: 12,
-    marginRight: 6,
+    fontSize: typography.fontSize.xs,
+    marginRight: spacing.xs * 1.5,
   },
   badge: {
-    minWidth: 20,
-    height: 20,
-    borderRadius: 10,
+    minWidth: spacing.xs * 5,
+    height: spacing.xs * 5,
+    borderRadius: shapes.radius.full,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 5,
+    paddingHorizontal: spacing.xs * 1.25,
   },
   badgeText: {
     color: '#FFFFFF',
-    fontSize: 11,
-    lineHeight: 13,
-    fontWeight: '700',
+    fontSize: typography.fontSize.xs,
+    lineHeight: typography.fontSize.xs * typography.lineHeight.tight,
+    fontWeight: typography.fontWeight.bold,
     textAlign: 'center',
     includeFontPadding: false,
   },
-});
+}));
 
 export default memo(MessageItem);

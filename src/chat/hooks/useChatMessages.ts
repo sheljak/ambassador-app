@@ -1,7 +1,6 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { useAppDispatch } from '@/store';
-import { useLazyGetMessagesQuery } from '@/store/features/dialogs';
-import { setMessages, appendMessages } from '@/store/features/dialogs';
+import { useLazyGetMessagesQuery, setMessages, appendMessages } from '@/store/features/dialogs';
 import { MESSAGES_PAGE_SIZE } from '@/store/features/dialogs/constants';
 import type { Message } from '@/store/types_that_will_used';
 

@@ -1,4 +1,4 @@
-import { StyleSheet, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Asset } from 'expo-asset';
@@ -6,12 +6,14 @@ import { SvgUri } from 'react-native-svg';
 
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 
 export function LandingScreen() {
   const { colors, spacing, shapes } = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const logoAsset = Asset.fromModule(require('../../assets/svg/idp-logo.svg'));
+  const logoSize = spacing.xs * 75;
 
   const handleGetStarted = () => {
     router.push('/sign-in' as any);
@@ -21,7 +23,7 @@ export function LandingScreen() {
     <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-          <SvgUri uri={logoAsset.uri} width={300} height={300} />
+          <SvgUri uri={logoAsset.uri} width={logoSize} height={logoSize} />
         </View>
       </View>
 
@@ -48,7 +50,7 @@ export function LandingScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography }) => ({
   container: {
     flex: 1,
   },
@@ -56,30 +58,30 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing.lg,
   },
   logoContainer: {
-    marginBottom: 32,
+    marginBottom: spacing['2xl'],
   },
   title: {
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.sm * 1.5,
   },
   subtitle: {
     textAlign: 'center',
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: typography.fontSize.base,
+    lineHeight: typography.fontSize.base * typography.lineHeight.normal,
   },
   buttonContainer: {
     width: '100%',
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing.lg,
   },
   button: {
     alignItems: 'center',
     justifyContent: 'center',
   },
   buttonText: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.semibold,
   },
-});
+}));

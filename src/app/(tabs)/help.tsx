@@ -7,12 +7,13 @@ import { WebView } from 'react-native-webview';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { Loader } from '@/components/Loader';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import { useLazyGetHubspotTokenQuery } from '@/store/features/auth/api';
 import { useAppSelector } from '@/store';
 
 export default function HelpScreen() {
-  const { colors } = useTheme();
+  const { colors, spacing } = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
 
@@ -58,7 +59,7 @@ export default function HelpScreen() {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.content}
-        keyboardVerticalOffset={-100}
+        keyboardVerticalOffset={-spacing.xs * 25}
       >
         {tokenReady && (
           <WebView
@@ -91,13 +92,13 @@ export default function HelpScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing }) => ({
   container: {
     flex: 1,
   },
   header: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
   },
   content: {
@@ -111,4 +112,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-});
+}));

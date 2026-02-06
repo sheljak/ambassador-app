@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { View, Text, Pressable, Platform, StyleSheet } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GiftedChat, Avatar, SystemMessage, Send, InputToolbar } from 'react-native-gifted-chat';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,7 +12,7 @@ import { ChatBubble } from './ChatBubble';
 import { ChatMenu } from './ChatMenu';
 import { ReplyFooter, ClosedChatBanner } from './ChatInput';
 import { chatStyles as styles } from './styles';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 
 const HEADER_HEIGHT = 49; // paddingVertical(12)*2 + icon(24) + border(1)
 
@@ -27,6 +27,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
 }) => {
   const router = useRouter();
   const { colors, spacing } = useTheme();
+  const stylesLocal = useStyles();
   const insets = useSafeAreaInsets();
   const config = configOverride ?? getChatConfig(chatType);
 
@@ -49,7 +50,11 @@ export const ChatView: React.FC<ChatViewProps> = ({
   const [showMenu, setShowMenu] = useState(false);
 
   const handleBack = useCallback(() => {
-    onBack ? onBack() : router.back();
+    if (onBack) {
+      onBack();
+    } else {
+      router.back();
+    }
   }, [onBack, router]);
 
   const handleReply = useCallback(
@@ -128,15 +133,15 @@ export const ChatView: React.FC<ChatViewProps> = ({
           <InputToolbar
             {...props}
             containerStyle={[
-              inputToolbarStyles.container,
+              stylesLocal.inputToolbarContainer,
               { borderTopColor: colors.border.default },
             ]}
-            primaryStyle={inputToolbarStyles.primary}
+            primaryStyle={stylesLocal.inputToolbarPrimary}
           />
         </View>
       );
     },
-    [inputDisabled, colors, insets.bottom],
+    [inputDisabled, colors, insets.bottom, stylesLocal],
   );
 
   return (
@@ -204,11 +209,11 @@ export const ChatView: React.FC<ChatViewProps> = ({
   );
 };
 
-const inputToolbarStyles = StyleSheet.create({
-  container: {
+const useStyles = createStyles(() => ({
+  inputToolbarContainer: {
     borderTopWidth: 1,
   },
-  primary: {
+  inputToolbarPrimary: {
     alignItems: 'center',
   },
-});
+}));

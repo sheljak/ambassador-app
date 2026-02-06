@@ -1,8 +1,8 @@
 import React, { memo } from 'react';
-import { View, StyleSheet, Pressable, Text } from 'react-native';
+import { View, Pressable, Text } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import type { ActivityTab } from '@/store/types_that_will_used';
 
 interface TabData {
@@ -23,6 +23,7 @@ const MessagesTabBar: React.FC<MessagesTabBarProps> = ({
   onTabChange,
 }) => {
   const { colors, palette } = useTheme();
+  const styles = useStyles();
 
   return (
     <View style={styles.container}>
@@ -61,40 +62,40 @@ const MessagesTabBar: React.FC<MessagesTabBarProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography, shapes }) => ({
   container: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
   },
   tab: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: spacing.sm * 1.5,
     alignItems: 'center',
   },
   tabLabel: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
   },
   badge: {
     position: 'absolute',
-    right: -17,
-    top: -8,
-    minWidth: 16,
-    height: 16,
-    borderRadius: 8,
+    right: -spacing.xs * 4.25,
+    top: -spacing.sm,
+    minWidth: spacing.xs * 4,
+    height: spacing.xs * 4,
+    borderRadius: shapes.radius.full,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 3,
+    paddingHorizontal: spacing.xs * 0.75,
   },
   badgeText: {
     color: '#FFFFFF',
-    fontSize: 10,
-    lineHeight: 12,
-    fontWeight: '700',
+    fontSize: typography.fontSize.xs,
+    lineHeight: typography.fontSize.xs * typography.lineHeight.tight,
+    fontWeight: typography.fontWeight.bold,
     textAlign: 'center',
     includeFontPadding: false,
   },
-});
+}));
 
 export default memo(MessagesTabBar);

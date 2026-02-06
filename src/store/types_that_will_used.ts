@@ -5,8 +5,6 @@
  * Types are organized by endpoint and include request/response structures.
  * Common/reusable types are defined at the top to avoid duplication.
  */
-/* eslint-disable @typescript-eslint/no-namespace */
-
 // ============================================================================
 // COMMON TYPES (Reusable across endpoints)
 // ============================================================================
@@ -126,7 +124,7 @@ export interface UserTagItem {
     code?: string;
     is_active: boolean;
     is_hidden: boolean;
-    parents: Array<{ name: string }>;
+    parents: { name: string }[];
 }
 
 /**
@@ -762,11 +760,11 @@ export interface FeedExtraData {
         id: number;
         name?: string;
     };
-    ambassadors?: Array<{
+    ambassadors?: {
         id: number;
         name?: string;
         avatar?: string;
-    }>;
+    }[];
     question?: string;
     answer?: string;
     dialog?: Dialog;
@@ -777,12 +775,12 @@ export interface FeedExtraData {
         id: number;
         caption?: string;
         images?: Image[];
-        videos?: Array<{
+        videos?: {
             original?: string;
             thumbnails?: {
                 midpoint?: string;
             };
-        }>;
+        }[];
     };
 }
 
@@ -1105,8 +1103,8 @@ export interface MessageContent {
         id?: number;
         type?: string;
         caption?: string;
-        images?: Array<{ original: string }>;
-        videos?: Array<{ original: string }>;
+        images?: { original: string }[];
+        videos?: { original: string }[];
     };
     key?: string;
 }

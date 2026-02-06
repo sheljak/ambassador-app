@@ -1,6 +1,5 @@
 import React, { useCallback, useState, useMemo, useEffect, useRef } from 'react';
 import {
-  StyleSheet,
   View,
   Pressable,
   ScrollView,
@@ -20,7 +19,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { FormInput, Button, Select, TagSelect } from '@/components/ui';
 import type { SelectItem } from '@/components/ui';
 import { Loader } from '@/components/Loader';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import {
   useGetAmbassadorDataQuery,
   useGetAccountQuery,
@@ -106,6 +105,7 @@ const YEARS_OF_STUDYING: SelectItem[] = Array.from({ length: 13 }, (_, i) => ({
 
 export default function AmbassadorProfileScreen() {
   const { colors, palette, spacing, shapes } = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
@@ -950,7 +950,7 @@ export default function AmbassadorProfileScreen() {
 // Styles
 // ---------------------------------------------------------------------------
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography, shapes }) => ({
   container: {
     flex: 1,
   },
@@ -960,81 +960,81 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm * 1.5,
     borderBottomWidth: 1,
   },
   backButton: {
-    padding: 8,
+    padding: spacing.sm,
   },
   headerTitle: {
     flex: 1,
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
     textAlign: 'center',
-    marginRight: 40,
+    marginRight: spacing.xs * 10,
   },
   headerSpacer: {
     width: 0,
   },
   scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 24,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
   },
   sectionLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 12,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
+    marginBottom: spacing.sm * 1.5,
   },
   fieldContainer: {
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   fieldLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 8,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
+    marginBottom: spacing.sm,
   },
   dateButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    minHeight: 48,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    minHeight: spacing.xs * 12,
+    paddingHorizontal: spacing.xs * 3.5,
+    paddingVertical: spacing.sm * 1.5,
   },
   errorText: {
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: typography.fontSize.xs,
+    marginTop: spacing.xs,
   },
   childrenSection: {
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   childCard: {
     borderWidth: 1,
-    padding: 16,
-    marginBottom: 12,
+    padding: spacing.md,
+    marginBottom: spacing.sm * 1.5,
   },
   childHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.sm * 1.5,
   },
   childLabel: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
   },
   childField: {
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   addButton: {
     alignSelf: 'flex-end',
-    paddingVertical: 8,
+    paddingVertical: spacing.sm,
   },
   addButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
   },
   dateModalOverlay: {
     flex: 1,
@@ -1042,18 +1042,18 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.4)',
   },
   dateModalContent: {
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    paddingBottom: 20,
+    borderTopLeftRadius: shapes.radius.xl,
+    borderTopRightRadius: shapes.radius.xl,
+    paddingBottom: spacing.xs * 5,
   },
   dateModalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm * 1.5,
   },
   dateModalButton: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
   },
-});
+}));

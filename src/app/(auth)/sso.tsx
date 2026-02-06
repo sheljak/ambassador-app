@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/hooks';
 import { getTapPageUrl } from '@/store/settings';
@@ -14,6 +14,7 @@ import { Loader } from '@/components/Loader';
 
 export default function SsoScreen() {
   const { colors } = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const { signInWithSso } = useAuth();
   const params = useLocalSearchParams<{ email?: string }>();
@@ -100,30 +101,30 @@ export default function SsoScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography, colors }) => ({
   container: {
     flex: 1,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm * 1.5,
     borderBottomWidth: 1,
   },
   backButton: {
-    padding: 8,
+    padding: spacing.sm,
   },
   headerTitle: {
     flex: 1,
     alignItems: 'center',
   },
   headerTitleText: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
   },
   headerSpacer: {
-    width: 40,
+    width: spacing.xs * 10,
   },
   webview: {
     flex: 1,
@@ -132,7 +133,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.background.primary,
   },
   loadingContainer: {
     flex: 1,
@@ -140,7 +141,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    marginTop: 16,
-    fontSize: 16,
+    marginTop: spacing.md,
+    fontSize: typography.fontSize.base,
   },
-});
+}));

@@ -7,11 +7,10 @@ import React from 'react';
 import {
   Pressable,
   Text,
-  StyleSheet,
   PressableProps,
   View,
 } from 'react-native';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import { Loader } from '@/components/Loader';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
@@ -42,6 +41,7 @@ export function Button({
   ...pressableProps
 }: ButtonProps) {
   const { colors, shapes, spacing } = useTheme();
+  const styles = useStyles();
 
   const isDisabled = disabled || loading;
 
@@ -107,26 +107,26 @@ export function Button({
   const getHeight = () => {
     switch (size) {
       case 'sm':
-        return 36;
+        return spacing.xs * 9;
       case 'md':
-        return 48;
+        return spacing.xs * 12;
       case 'lg':
-        return 56;
+        return spacing.xs * 14;
       default:
-        return 48;
+        return spacing.xs * 12;
     }
   };
 
   const getFontSize = () => {
     switch (size) {
       case 'sm':
-        return 14;
+        return spacing.xs * 3.5;
       case 'md':
-        return 16;
+        return spacing.xs * 4;
       case 'lg':
-        return 18;
+        return spacing.xs * 4.5;
       default:
-        return 16;
+        return spacing.xs * 4;
     }
   };
 
@@ -184,7 +184,7 @@ export function Button({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography }) => ({
   button: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -196,12 +196,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   text: {
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
   },
   leftIcon: {
-    marginRight: 8,
+    marginRight: spacing.sm,
   },
   rightIcon: {
-    marginLeft: 8,
+    marginLeft: spacing.sm,
   },
-});
+}));

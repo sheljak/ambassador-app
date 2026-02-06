@@ -6,11 +6,10 @@ import {
   Pressable,
   ScrollView,
   Modal,
-  StyleSheet,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import type { SelectItem } from './Select';
 
 export interface TagSelectProps {
@@ -39,6 +38,7 @@ export function TagSelect({
   minSelection = 0,
 }: TagSelectProps) {
   const { colors, palette, shapes } = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const [visible, setVisible] = useState(false);
   const [search, setSearch] = useState('');
@@ -280,7 +280,7 @@ export function TagSelect({
                           name="checkmark-circle"
                           size={16}
                           color={palette.primary[500]}
-                          style={{ marginRight: 4 }}
+                          style={styles.checkIcon}
                         />
                       )}
                       <Text
@@ -308,52 +308,52 @@ export function TagSelect({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography, shapes }) => ({
   container: {
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 8,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
+    marginBottom: spacing.sm,
   },
   trigger: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    minHeight: 48,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    minHeight: spacing.xs * 12,
+    paddingHorizontal: spacing.xs * 3.5,
+    paddingVertical: spacing.sm,
   },
   tagsContainer: {
     flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 6,
-    marginRight: 8,
+    gap: spacing.xs * 1.5,
+    marginRight: spacing.sm,
   },
   tag: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingHorizontal: spacing.xs * 2.5,
+    paddingVertical: spacing.xs * 1.25,
     borderWidth: 1,
-    gap: 4,
+    gap: spacing.xs,
   },
   tagText: {
-    fontSize: 13,
-    fontWeight: '500',
-    maxWidth: 120,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
+    maxWidth: spacing.xs * 30,
   },
   placeholderText: {
     flex: 1,
-    fontSize: 16,
-    marginRight: 8,
+    fontSize: typography.fontSize.base,
+    marginRight: spacing.sm,
   },
   error: {
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: typography.fontSize.xs,
+    marginTop: spacing.xs,
   },
   modalContainer: {
     flex: 1,
@@ -362,77 +362,80 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.sm * 1.5,
     borderBottomWidth: 1,
   },
   modalTitle: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
   },
   cancelButton: {
-    padding: 4,
+    padding: spacing.xs,
   },
   doneButton: {
-    padding: 4,
+    padding: spacing.xs,
   },
   headerButton: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
   },
   counterRow: {
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 4,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.xs * 2.5,
+    paddingBottom: spacing.xs,
   },
   counterText: {
-    fontSize: 13,
+    fontSize: typography.fontSize.sm,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    minHeight: 44,
-    marginHorizontal: 16,
-    marginTop: 8,
-    marginBottom: 12,
+    minHeight: spacing.xs * 11,
+    marginHorizontal: spacing.md,
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm * 1.5,
   },
   searchIcon: {
-    paddingLeft: 12,
-    paddingRight: 8,
+    paddingLeft: spacing.sm * 1.5,
+    paddingRight: spacing.sm,
   },
   searchInput: {
     flex: 1,
-    fontSize: 15,
-    paddingVertical: 10,
-    paddingRight: 8,
+    fontSize: typography.fontSize.sm,
+    paddingVertical: spacing.xs * 2.5,
+    paddingRight: spacing.sm,
   },
   clearButton: {
-    paddingHorizontal: 10,
+    paddingHorizontal: spacing.xs * 2.5,
   },
   tagsGrid: {
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.md,
   },
   tagsWrap: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: spacing.sm,
   },
   tagOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderWidth: 1.5,
+    paddingHorizontal: spacing.xs * 3.5,
+    paddingVertical: spacing.xs * 2.5,
+    borderWidth: spacing.xs * 0.375,
   },
   tagOptionText: {
-    fontSize: 14,
+    fontSize: typography.fontSize.sm,
+  },
+  checkIcon: {
+    marginRight: spacing.xs,
   },
   emptyContainer: {
-    paddingVertical: 32,
+    paddingVertical: spacing['2xl'],
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: 15,
+    fontSize: typography.fontSize.sm,
   },
-});
+}));

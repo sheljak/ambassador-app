@@ -1,15 +1,16 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { Image } from 'expo-image';
 
 import ImageViewer from './ImageViewerWrapper';
 import { ThemedText } from '@/components/ThemedText';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import FeedCard from './FeedCard';
 import type { BaseFeedProps } from './types';
 
 const ImageFeed: React.FC<BaseFeedProps> = ({ data }) => {
   const { colors, shapes, palette } = useTheme();
+  const styles = useStyles();
   const [isViewerVisible, setIsViewerVisible] = useState(false);
 
   // Extract image from extraData.post.images or media
@@ -100,33 +101,33 @@ const ImageFeed: React.FC<BaseFeedProps> = ({ data }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography }) => ({
   imageContainer: {
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   pressable: {
     position: 'relative',
   },
   image: {
     width: '100%',
-    height: 200,
+    height: spacing.xs * 50,
   },
   tapHint: {
     position: 'absolute',
-    bottom: 8,
-    right: 8,
+    bottom: spacing.sm,
+    right: spacing.sm,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
   },
   tapHintText: {
     color: '#FFFFFF',
-    fontSize: 11,
+    fontSize: typography.fontSize.xs,
   },
   caption: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: typography.fontSize.sm,
+    lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
   },
-});
+}));
 
 export default React.memo(ImageFeed);

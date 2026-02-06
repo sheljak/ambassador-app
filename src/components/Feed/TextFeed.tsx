@@ -1,13 +1,14 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import FeedCard from './FeedCard';
 import type { BaseFeedProps } from './types';
 
 const TextFeed: React.FC<BaseFeedProps> = ({ data, onPress }) => {
   const { colors, shapes, palette } = useTheme();
+  const styles = useStyles();
 
   // Extract prospect name from extraData
   const prospectName = useMemo(() => {
@@ -48,14 +49,14 @@ const TextFeed: React.FC<BaseFeedProps> = ({ data, onPress }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography }) => ({
   messageContainer: {
-    padding: 12,
+    padding: spacing.sm * 1.5,
   },
   messageText: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: typography.fontSize.sm,
+    lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
   },
-});
+}));
 
 export default React.memo(TextFeed);

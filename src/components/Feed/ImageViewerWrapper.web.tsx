@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal, View, StyleSheet, Pressable, Image } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
+import { createStyles } from '@/theme';
 
 interface ImageSource {
   uri: string;
@@ -20,6 +21,7 @@ const ImageViewerWeb: React.FC<ImageViewerProps> = ({
   visible,
   onRequestClose,
 }) => {
+  const styles = useStyles();
   const [currentIndex, setCurrentIndex] = React.useState(imageIndex);
 
   React.useEffect(() => {
@@ -84,7 +86,7 @@ const ImageViewerWeb: React.FC<ImageViewerProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography }) => ({
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -96,14 +98,14 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-    top: 40,
-    right: 20,
+    top: spacing.xs * 10,
+    right: spacing.xs * 5,
     zIndex: 10,
-    padding: 10,
+    padding: spacing.xs * 2.5,
   },
   closeText: {
     color: '#fff',
-    fontSize: 24,
+    fontSize: typography.fontSize['2xl'],
   },
   imageContainer: {
     flex: 1,
@@ -119,27 +121,27 @@ const styles = StyleSheet.create({
   navButton: {
     position: 'absolute',
     top: '50%',
-    padding: 20,
+    padding: spacing.xs * 5,
     zIndex: 10,
   },
   prevButton: {
-    left: 10,
+    left: spacing.xs * 2.5,
   },
   nextButton: {
-    right: 10,
+    right: spacing.xs * 2.5,
   },
   navText: {
     color: '#fff',
-    fontSize: 48,
+    fontSize: typography.fontSize['4xl'],
   },
   counter: {
     position: 'absolute',
-    bottom: 40,
+    bottom: spacing.xs * 10,
   },
   counterText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: typography.fontSize.base,
   },
-});
+}));
 
 export default ImageViewerWeb;

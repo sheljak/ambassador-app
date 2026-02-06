@@ -1,5 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useCallback } from 'react';
-import { Platform, ActionSheetIOS } from 'react-native';
+import { forwardRef, useImperativeHandle, useCallback } from 'react';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { Ionicons } from '@expo/vector-icons';
 

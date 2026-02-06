@@ -1,15 +1,16 @@
 import React from 'react';
-import { StyleSheet, View, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 
 export default function TimeReportScreen() {
   const { colors, palette } = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
@@ -31,29 +32,29 @@ export default function TimeReportScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography }) => ({
   container: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm * 1.5,
     borderBottomWidth: 1,
   },
-  backButton: { padding: 8 },
+  backButton: { padding: spacing.sm },
   headerTitle: {
     flex: 1,
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
     textAlign: 'center',
-    marginRight: 40,
+    marginRight: spacing.xs * 10,
   },
   headerSpacer: { width: 0 },
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: spacing['2xl'],
   },
-  placeholder: { fontSize: 16, textAlign: 'center' },
-});
+  placeholder: { fontSize: typography.fontSize.base, textAlign: 'center' },
+}));

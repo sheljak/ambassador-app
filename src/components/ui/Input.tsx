@@ -8,11 +8,10 @@ import {
   View,
   TextInput,
   TextInputProps,
-  StyleSheet,
   Pressable,
   Text,
 } from 'react-native';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 
 export interface InputProps extends Omit<TextInputProps, 'style'> {
   label?: string;
@@ -46,6 +45,7 @@ export const Input = forwardRef<TextInput, InputProps>(
     ref
   ) => {
     const { colors, shapes, spacing } = useTheme();
+    const styles = useStyles();
     const [isFocused, setIsFocused] = useState(false);
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -157,40 +157,40 @@ export const Input = forwardRef<TextInput, InputProps>(
 
 Input.displayName = 'Input';
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography }) => ({
   container: {
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 8,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
+    marginBottom: spacing.sm,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    minHeight: 48,
+    minHeight: spacing.xs * 12,
   },
   input: {
     flex: 1,
-    fontSize: 16,
-    paddingVertical: 12,
+    fontSize: typography.fontSize.base,
+    paddingVertical: spacing.sm * 1.5,
   },
   leftIcon: {
-    paddingLeft: 12,
-    paddingRight: 8,
+    paddingLeft: spacing.sm * 1.5,
+    paddingRight: spacing.sm,
   },
   rightIcon: {
-    paddingRight: 12,
-    paddingLeft: 8,
+    paddingRight: spacing.sm * 1.5,
+    paddingLeft: spacing.sm,
   },
   error: {
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: typography.fontSize.xs,
+    marginTop: spacing.xs,
   },
   hint: {
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: typography.fontSize.xs,
+    marginTop: spacing.xs,
   },
-});
+}));

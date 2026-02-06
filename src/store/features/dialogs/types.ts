@@ -1,7 +1,6 @@
 import type {
   Dialog,
   Message,
-  User,
   PaginatedResponse,
 } from '../../types_that_will_used';
 

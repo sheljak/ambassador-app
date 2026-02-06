@@ -4,10 +4,11 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BaseToast, ErrorToast, ToastConfig } from 'react-native-toast-message';
+import { ToastConfig } from 'react-native-toast-message';
 import { useTheme } from '@/theme';
+import { useToastStyles } from './ToastConfig.styles';
 
 interface CustomToastProps {
   text1?: string;
@@ -17,8 +18,9 @@ interface CustomToastProps {
 }
 
 const CustomToast: React.FC<CustomToastProps> = ({ text1, text2, onPress, type }) => {
-  const { colors, shapes, shadows } = useTheme();
+  const { colors, shapes, shadows, spacing } = useTheme();
   const insets = useSafeAreaInsets();
+  const styles = useToastStyles();
 
   const getBackgroundColor = () => {
     switch (type) {
@@ -53,7 +55,7 @@ const CustomToast: React.FC<CustomToastProps> = ({ text1, text2, onPress, type }
           backgroundColor: colors.background.primary,
           borderRadius: shapes.radius.lg,
           borderLeftColor: getBackgroundColor(),
-          marginTop: insets.top > 0 ? 0 : 10,
+          marginTop: insets.top > 0 ? 0 : spacing.sm,
           ...shadows.lg,
         },
       ]}
@@ -114,46 +116,3 @@ export const toastConfig: ToastConfig = {
     />
   ),
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '90%',
-    minHeight: 60,
-    paddingVertical: 12,
-    paddingRight: 16,
-    borderLeftWidth: 4,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 12,
-    marginRight: 12,
-  },
-  icon: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  textContainer: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 15,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  message: {
-    fontSize: 13,
-    lineHeight: 18,
-  },
-});

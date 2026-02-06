@@ -5,18 +5,32 @@
 
 // Base color palette
 export const palette = {
-  // Primary - Teal shades
+  // Primary - Airy Blue (Weightless theme)
   primary: {
-    50: '#E6F7FA',
-    100: '#CCF0F5',
-    200: '#99E0EB',
-    300: '#66D1E0',
-    400: '#33C1D6',
-    500: '#0a7ea4', // Main teal
-    600: '#086583',
-    700: '#064C62',
-    800: '#043242',
-    900: '#021921',
+    50: '#EAF4FD',
+    100: '#D6E9FB',
+    200: '#ADD3F7',
+    300: '#84BDF2',
+    400: '#6BB0ED',
+    500: '#5AA9E6', // Main blue
+    600: '#3F8FD0',
+    700: '#2E6FA6',
+    800: '#1F4F78',
+    900: '#12324D',
+  },
+
+  // Secondary - Soft Peach (Weightless accent)
+  secondary: {
+    50: '#FFF3EE',
+    100: '#FFE6DD',
+    200: '#FFCCBB',
+    300: '#FFB299',
+    400: '#F6B19F',
+    500: '#F2B5A7',
+    600: '#E49B8A',
+    700: '#C47E6D',
+    800: '#9B5E4F',
+    900: '#6A3E35',
   },
 
   // Neutral - Gray shades for text/backgrounds
@@ -110,7 +124,7 @@ export const semanticColors = {
     // Border colors
     border: {
       default: palette.neutral[200],
-      focused: palette.primary[500],
+      focused: palette.secondary[500],
       error: palette.error[500],
     },
 
@@ -133,7 +147,7 @@ export const semanticColors = {
     tint: palette.primary[500],
     icon: palette.neutral[500],
     tabIconDefault: palette.neutral[500],
-    tabIconSelected: palette.primary[500],
+    tabIconSelected: palette.secondary[500],
   },
 
   dark: {
@@ -155,7 +169,7 @@ export const semanticColors = {
     // Border colors
     border: {
       default: palette.neutral[700],
-      focused: palette.primary[400],
+      focused: palette.secondary[400],
       error: palette.error[400],
     },
 
@@ -178,7 +192,7 @@ export const semanticColors = {
     tint: palette.neutral[0],
     icon: palette.neutral[400],
     tabIconDefault: palette.neutral[400],
-    tabIconSelected: palette.neutral[0],
+    tabIconSelected: palette.secondary[300],
   },
 } as const;
 

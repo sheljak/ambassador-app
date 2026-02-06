@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import Popover from 'react-native-popover-view';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 
 interface MessageActionsPopoverProps {
   visible: boolean;
@@ -22,6 +22,7 @@ export const MessageActionsPopover: React.FC<MessageActionsPopoverProps> = ({
   children,
 }) => {
   const { colors, spacing, shapes } = useTheme();
+  const styles = useStyles();
 
   return (
     <Popover
@@ -56,19 +57,19 @@ export const MessageActionsPopover: React.FC<MessageActionsPopoverProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography }) => ({
   card: {
-    minWidth: 160,
+    minWidth: spacing.xs * 40,
   },
   actionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 6,
+    gap: spacing.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.xs * 1.5,
   },
   actionText: {
-    fontSize: 15,
-    fontWeight: '500',
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
   },
-});
+}));

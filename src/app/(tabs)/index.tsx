@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import {
-  StyleSheet,
   FlatList,
   View,
   RefreshControl,
@@ -14,7 +13,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { FeedItem, FeedHeader } from '@/components/Feed';
 import { Loader } from '@/components/Loader';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import { useLazyGetFeedsQuery } from '@/store/features/feeds';
 import type { FeedType } from '@/store/features/feeds/types';
 import type { FeedPost } from '@/store/types_that_will_used';
@@ -24,6 +23,7 @@ const FEED_LIMIT = 10;
 
 export default function HomeScreen() {
   const { colors, palette } = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
 
@@ -147,7 +147,7 @@ export default function HomeScreen() {
         </ThemedText>
       </View>
     );
-  }, [isLoading, colors, palette, selectedType]);
+  }, [isLoading, colors, selectedType, styles]);
 
   // Footer component (loading indicator for pagination)
   const ListFooter = useCallback(() => {
@@ -158,7 +158,7 @@ export default function HomeScreen() {
         <Loader size="small" inline />
       </View>
     );
-  }, [isFetching, feeds.length, palette]);
+  }, [isFetching, feeds.length, styles]);
 
   return (
     <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
@@ -193,7 +193,7 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography }) => ({
   container: {
     flex: 1,
   },
@@ -201,23 +201,23 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   listContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 24,
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.lg,
     flexGrow: 1,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 48,
-    paddingHorizontal: 24,
+    paddingVertical: spacing['2xl'],
+    paddingHorizontal: spacing.lg,
   },
   emptyText: {
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: typography.fontSize.base,
   },
   footerContainer: {
-    paddingVertical: 16,
+    paddingVertical: spacing.md,
     alignItems: 'center',
   },
-});
+}));

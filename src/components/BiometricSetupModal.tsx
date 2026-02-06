@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
-import { View, Modal, StyleSheet, Pressable } from 'react-native';
+import { View, Modal, Pressable } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { FormInput, Button } from '@/components/ui';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import { BiometricService } from '@/services/biometric';
 import { ToastService } from '@/services/toast';
 import { useForm } from 'react-hook-form';
@@ -27,7 +27,8 @@ export function BiometricSetupModal({
   onComplete,
   onSkip,
 }: BiometricSetupModalProps) {
-  const { colors, palette, shapes, spacing } = useTheme();
+  const { colors, shapes, spacing } = useTheme();
+  const styles = useStyles();
   const [isEnabling, setIsEnabling] = useState(false);
 
   const { control, handleSubmit, reset } = useForm<PasswordForm>({
@@ -123,45 +124,45 @@ export function BiometricSetupModal({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography }) => ({
   overlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.4)',
-    paddingHorizontal: 32,
+    paddingHorizontal: spacing['2xl'],
   },
   content: {
     width: '100%',
-    padding: 24,
+    padding: spacing.lg,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.semibold,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: typography.fontSize.sm,
     textAlign: 'center',
-    marginBottom: 20,
-    lineHeight: 20,
+    marginBottom: spacing.xs * 5,
+    lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
   },
   inputContainer: {
     width: '100%',
   },
   skipButton: {
     alignSelf: 'center',
-    marginTop: 16,
-    padding: 8,
+    marginTop: spacing.md,
+    padding: spacing.sm,
   },
   skipText: {
-    fontSize: 15,
-    fontWeight: '500',
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
   },
   note: {
-    fontSize: 12,
+    fontSize: typography.fontSize.xs,
     textAlign: 'center',
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
-});
+}));

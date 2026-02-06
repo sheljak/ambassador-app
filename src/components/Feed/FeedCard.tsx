@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { Image } from 'expo-image';
 
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import type { FeedPost } from '@/store/types_that_will_used';
 
 interface FeedCardProps {
@@ -23,6 +23,7 @@ const FeedCard: React.FC<FeedCardProps> = ({
   labelColor,
 }) => {
   const { colors, shapes, palette } = useTheme();
+  const styles = useStyles();
 
   const user = data.user;
   const avatarUrl = user?.avatar?.original || user?.avatar?.sizes?.['70x70'];
@@ -126,19 +127,19 @@ const FeedCard: React.FC<FeedCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography, shapes }) => ({
   container: {
-    padding: 16,
-    marginBottom: 16,
+    padding: spacing.md,
+    marginBottom: spacing.md,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.sm * 1.5,
   },
   avatar: {
-    width: 40,
-    height: 40,
+    width: spacing.xs * 10,
+    height: spacing.xs * 10,
   },
   avatarPlaceholder: {
     alignItems: 'center',
@@ -146,36 +147,36 @@ const styles = StyleSheet.create({
     overflow: 'visible',
   },
   avatarInitial: {
-    fontSize: 16,
-    fontWeight: '600',
-    lineHeight: 20,
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
+    lineHeight: typography.fontSize.base * typography.lineHeight.normal,
     textAlign: 'center',
   },
   headerText: {
-    marginLeft: 12,
+    marginLeft: spacing.sm * 1.5,
     flex: 1,
   },
   nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing.sm,
   },
   labelBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs / 2,
+    borderRadius: shapes.radius.sm,
   },
   labelText: {
     color: '#FFFFFF',
-    fontSize: 10,
-    fontWeight: '600',
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.semibold,
     textTransform: 'uppercase',
   },
   date: {
-    fontSize: 12,
-    marginTop: 2,
+    fontSize: typography.fontSize.xs,
+    marginTop: spacing.xs / 2,
   },
   content: {},
-});
+}));
 
 export default React.memo(FeedCard);

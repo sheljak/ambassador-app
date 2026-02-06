@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Animated, StyleSheet } from 'react-native';
+import { View, Animated } from 'react-native';
+import { useTheme, createStyles } from '@/theme';
 
 const DURATION = 1500;
-const DOT_COLORS = ['#E07400', '#B4E646', '#0874E7'];
 
 interface LoaderProps {
   size?: 'small' | 'large';
@@ -49,8 +49,11 @@ function PulseDot({ color, delay, dotSize }: { color: string; delay: number; dot
 }
 
 export function Loader({ size = 'large', paddingBottom = 0, inline = false, style }: LoaderProps) {
-  const dotSize = size === 'small' ? 10 : 16;
-  const dotSpacing = size === 'small' ? 8 : 12;
+  const { spacing, palette } = useTheme();
+  const styles = useStyles();
+  const dotSize = size === 'small' ? spacing.xs * 2.5 : spacing.md;
+  const dotSpacing = size === 'small' ? spacing.sm : spacing.sm * 1.5;
+  const dotColors = [palette.primary[500], palette.secondary?.[500] ?? palette.primary[300], palette.primary[300]];
 
   return (
     <View
@@ -63,7 +66,7 @@ export function Loader({ size = 'large', paddingBottom = 0, inline = false, styl
       ]}
     >
       <View style={[styles.dotsRow, { gap: dotSpacing }]}>
-        {DOT_COLORS.map((color, i) => (
+        {dotColors.map((color, i) => (
           <PulseDot key={i} color={color} delay={i * (DURATION / 6)} dotSize={dotSize} />
         ))}
       </View>
@@ -71,7 +74,7 @@ export function Loader({ size = 'large', paddingBottom = 0, inline = false, styl
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing }) => ({
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -79,7 +82,7 @@ const styles = StyleSheet.create({
   },
   containerSmall: {
     flex: 0,
-    padding: 16,
+    padding: spacing.md,
   },
   containerInline: {
     flex: 0,
@@ -89,4 +92,4 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-});
+}));

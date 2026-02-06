@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { useAppDispatch } from '@/store';
-import { useSendMessageMutation } from '@/store/features/dialogs';
-import { addMessage, removeMessage } from '@/store/features/dialogs';
+import { useSendMessageMutation, addMessage, removeMessage } from '@/store/features/dialogs';
 import type { Message, User, ParentMessage } from '@/store/types_that_will_used';
 
 interface UseSendMessageOptions {

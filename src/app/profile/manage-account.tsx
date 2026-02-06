@@ -18,7 +18,7 @@ import Constants from 'expo-constants';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import {
   useGetAccountQuery,
   useToggleEmailNotificationMutation,
@@ -28,7 +28,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { ToastService, BiometricService } from '@/services';
 
 export default function ManageAccountScreen() {
-  const { colors, palette, spacing, shapes } = useTheme();
+  const { colors, palette, shapes } = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { signOut } = useAuth();
@@ -370,97 +371,97 @@ export default function ManageAccountScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography }) => ({
   container: {
     flex: 1,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm * 1.5,
     borderBottomWidth: 1,
   },
   backButton: {
-    padding: 8,
+    padding: spacing.sm,
   },
   headerTitle: {
     flex: 1,
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
     textAlign: 'center',
-    marginRight: 40,
+    marginRight: spacing.xs * 10,
   },
   headerSpacer: {
     width: 0,
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
+    paddingHorizontal: spacing.xs * 5,
+    paddingTop: spacing.sm,
   },
   section: {
-    marginTop: 12,
+    marginTop: spacing.sm * 1.5,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 16,
+    paddingVertical: spacing.md,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   rowLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    marginRight: 12,
+    marginRight: spacing.sm * 1.5,
   },
   rowIcon: {
-    marginRight: 12,
+    marginRight: spacing.sm * 1.5,
   },
   rowText: {
-    fontSize: 15,
+    fontSize: typography.fontSize.sm,
     flex: 1,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 32,
-    paddingHorizontal: 4,
+    marginTop: spacing['2xl'],
+    paddingHorizontal: spacing.xs,
   },
   deleteText: {
-    fontSize: 15,
-    fontWeight: '500',
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
   },
   versionText: {
-    fontSize: 13,
+    fontSize: typography.fontSize.sm,
   },
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.4)',
-    paddingHorizontal: 32,
+    paddingHorizontal: spacing['2xl'],
   },
   modalContent: {
     width: '100%',
-    padding: 24,
+    padding: spacing.lg,
     alignItems: 'center',
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 8,
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.semibold,
+    marginBottom: spacing.sm,
   },
   modalDescription: {
-    fontSize: 14,
+    fontSize: typography.fontSize.sm,
     textAlign: 'center',
-    marginBottom: 24,
-    lineHeight: 20,
+    marginBottom: spacing.lg,
+    lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
   },
   modalButtons: {
     width: '100%',
-    gap: 10,
+    gap: spacing.xs * 2.5,
   },
   modalButton: {
     width: '100%',
@@ -468,9 +469,9 @@ const styles = StyleSheet.create({
   biometricPasswordInput: {
     width: '100%',
     borderWidth: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    fontSize: 15,
-    marginBottom: 16,
+    paddingVertical: spacing.sm * 1.5,
+    paddingHorizontal: spacing.md,
+    fontSize: typography.fontSize.sm,
+    marginBottom: spacing.md,
   },
-});
+}));

@@ -1,7 +1,6 @@
 import type {
   FeedPost,
   PaginatedResponse,
-  ApiResponse,
 } from '../../types_that_will_used';
 
 // Re-export API types from main types file

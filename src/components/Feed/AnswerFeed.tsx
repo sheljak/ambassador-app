@@ -1,13 +1,14 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import FeedCard from './FeedCard';
 import type { BaseFeedProps } from './types';
 
 const AnswerFeed: React.FC<BaseFeedProps> = ({ data, onPress }) => {
   const { colors, shapes, palette } = useTheme();
+  const styles = useStyles();
 
   // Extract question and answer from extraData
   const { questionText, answerText } = useMemo(() => {
@@ -44,7 +45,7 @@ const AnswerFeed: React.FC<BaseFeedProps> = ({ data, onPress }) => {
           Question:
         </ThemedText>
         <ThemedText style={[styles.questionText, { color: colors.text.secondary }]}>
-          "{questionText}"
+          {`"${questionText}"`}
         </ThemedText>
       </View>
 
@@ -70,30 +71,30 @@ const AnswerFeed: React.FC<BaseFeedProps> = ({ data, onPress }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography }) => ({
   questionContainer: {
-    padding: 12,
-    marginBottom: 8,
+    padding: spacing.sm * 1.5,
+    marginBottom: spacing.sm,
   },
   answerContainer: {
-    padding: 12,
-    borderLeftWidth: 4,
+    padding: spacing.sm * 1.5,
+    borderLeftWidth: spacing.xs,
   },
   label: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.semibold,
     textTransform: 'uppercase',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   questionText: {
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: typography.fontSize.sm,
+    lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
     fontStyle: 'italic',
   },
   answerText: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: typography.fontSize.sm,
+    lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
   },
-});
+}));
 
 export default React.memo(AnswerFeed);

@@ -1,8 +1,8 @@
 import React, { memo, useRef, useCallback } from 'react';
-import { View, StyleSheet, TextInput, Pressable, Keyboard } from 'react-native';
+import { View, TextInput, Pressable, Keyboard } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 
 interface MessagesSearchProps {
   value: string;
@@ -18,6 +18,7 @@ const MessagesSearch: React.FC<MessagesSearchProps> = ({
   placeholder = 'Search messages...',
 }) => {
   const { colors, shapes, palette } = useTheme();
+  const styles = useStyles();
   const inputRef = useRef<TextInput>(null);
 
   const handleSubmit = useCallback(() => {
@@ -71,25 +72,25 @@ const MessagesSearch: React.FC<MessagesSearchProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography }) => ({
   container: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    paddingHorizontal: 12,
+    paddingHorizontal: spacing.sm * 1.5,
   },
   input: {
     flex: 1,
-    paddingVertical: 10,
-    fontSize: 14,
+    paddingVertical: spacing.xs * 2.5,
+    fontSize: typography.fontSize.sm,
   },
   iconButton: {
-    padding: 4,
+    padding: spacing.xs,
   },
-});
+}));
 
 export default memo(MessagesSearch);

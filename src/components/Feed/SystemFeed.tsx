@@ -1,12 +1,13 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import type { BaseFeedProps } from './types';
 
 const SystemFeed: React.FC<BaseFeedProps> = ({ data }) => {
   const { colors, shapes, palette } = useTheme();
+  const styles = useStyles();
 
   const messageText = useMemo(() => {
     if (data.text) return data.text;
@@ -37,31 +38,31 @@ const SystemFeed: React.FC<BaseFeedProps> = ({ data }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography, shapes }) => ({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
-    marginBottom: 12,
-    gap: 12,
+    padding: spacing.sm * 1.5,
+    marginBottom: spacing.sm * 1.5,
+    gap: spacing.sm * 1.5,
   },
   iconContainer: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: spacing.xs * 6,
+    height: spacing.xs * 6,
+    borderRadius: shapes.radius.full,
     justifyContent: 'center',
     alignItems: 'center',
   },
   icon: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
     color: '#FFFFFF',
   },
   text: {
     flex: 1,
-    fontSize: 13,
+    fontSize: typography.fontSize.sm,
     fontStyle: 'italic',
   },
-});
+}));
 
 export default React.memo(SystemFeed);

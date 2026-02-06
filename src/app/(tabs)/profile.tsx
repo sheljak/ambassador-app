@@ -9,7 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { Loader } from '@/components/Loader';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import { useAuth } from '@/hooks';
 import { useGetAmbassadorDataQuery } from '@/store/features/auth/api';
 import { prepareSubjectInfo } from '@/helpers/common';
@@ -56,6 +56,7 @@ const PROFILE_MENU: ProfileMenuItem[] = [
 
 export default function ProfileScreen() {
   const { colors, palette, shapes } = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
   const router = useRouter();
@@ -247,69 +248,69 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography, shapes }) => ({
   container: {
     flex: 1,
   },
   header: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
   },
   scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: 24,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.lg,
   },
   avatarSection: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: spacing.xs * 5,
   },
   avatar: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    borderWidth: 3,
-    marginBottom: 12,
+    width: spacing.xs * 22,
+    height: spacing.xs * 22,
+    borderRadius: shapes.radius.full,
+    borderWidth: spacing.xs * 0.75,
+    marginBottom: spacing.sm * 1.5,
   },
   avatarPlaceholder: {
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarInitials: {
-    fontSize: 32,
-    fontWeight: '600',
+    fontSize: typography.fontSize['3xl'],
+    fontWeight: typography.fontWeight.semibold,
   },
   displayName: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 4,
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.semibold,
+    marginBottom: spacing.xs,
   },
   subjectInfo: {
-    fontSize: 14,
+    fontSize: typography.fontSize.sm,
   },
   pointsContainer: {
-    marginBottom: 20,
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 16,
+    marginBottom: spacing.xs * 5,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.xs * 5,
+    paddingBottom: spacing.md,
     overflow: 'visible',
   },
   pointsMain: {
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.sm * 1.5,
   },
   pointsValue: {
-    fontSize: 28,
-    lineHeight: 34,
-    fontWeight: '700',
+    fontSize: typography.fontSize['2xl'],
+    lineHeight: typography.fontSize['2xl'] * typography.lineHeight.tight,
+    fontWeight: typography.fontWeight.bold,
   },
   pointsLabel: {
-    fontSize: 13,
-    marginTop: 2,
+    fontSize: typography.fontSize.sm,
+    marginTop: spacing.xs / 2,
   },
   pointsDivider: {
     height: 1,
-    marginBottom: 12,
+    marginBottom: spacing.sm * 1.5,
   },
   pointsBreakdown: {
     flexDirection: 'row',
@@ -319,53 +320,53 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   pointsItemValue: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
   },
   pointsItemLabel: {
-    fontSize: 12,
-    marginTop: 2,
+    fontSize: typography.fontSize.xs,
+    marginTop: spacing.xs / 2,
   },
   menuContainer: {
     overflow: 'hidden',
-    marginBottom: 24,
+    marginBottom: spacing.lg,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 14,
+    paddingVertical: spacing.xs * 3.5,
+    paddingHorizontal: spacing.xs * 3.5,
   },
   menuIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: spacing.xs * 9,
+    height: spacing.xs * 9,
+    borderRadius: shapes.radius.full,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing.sm * 1.5,
   },
   menuText: {
     flex: 1,
-    marginRight: 8,
+    marginRight: spacing.sm,
   },
   menuTitle: {
-    fontSize: 15,
-    fontWeight: '500',
-    marginBottom: 2,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
+    marginBottom: spacing.xs / 2,
   },
   menuDescription: {
-    fontSize: 12,
+    fontSize: typography.fontSize.xs,
   },
   signOutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 10,
+    gap: spacing.xs * 1.5,
+    paddingVertical: spacing.xs * 2.5,
   },
   signOutText: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
   },
   loaderOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -373,4 +374,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 1,
   },
-});
+}));

@@ -82,7 +82,7 @@ export const useChat = ({ dialogId, chatType, config = {}, searchTerm }: UseChat
     if (messageIds.length > 0) {
       viewMessages({ dialog_id: dialogId, message_ids: messageIds }).catch(() => {});
     }
-  }, [dialogId, storeMessages.length, viewMessages]);
+  }, [dialogId, storeMessages, viewMessages]);
 
   // Reply state
   const [replyTo, setReplyTo] = useState<ParentMessage | null>(null);

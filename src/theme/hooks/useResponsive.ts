@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { Dimensions, Platform } from 'react-native';
+import { Dimensions } from 'react-native';
 import { breakpoints, getBreakpoint, type BreakpointKey } from '../breakpoints';
 
 type ResponsiveValue<T> = Partial<Record<BreakpointKey, T>>;

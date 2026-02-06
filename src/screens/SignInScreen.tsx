@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  StyleSheet,
   Pressable,
   View,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Modal,
-  TextInput,
   Alert,
 } from 'react-native';
 import { router } from 'expo-router';
@@ -18,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { FormInput, Button, Input } from '@/components/ui';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import { useAuth } from '@/hooks';
 import { BiometricService, ToastService } from '@/services';
 
@@ -30,7 +28,8 @@ interface SignInFormData {
 const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 
 export function SignInScreen() {
-  const { colors, spacing, shapes, palette } = useTheme();
+  const { colors, shapes, palette } = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const { signIn, isLoading } = useAuth();
 
@@ -49,7 +48,6 @@ export function SignInScreen() {
   const {
     control,
     handleSubmit,
-    formState: { errors },
   } = useForm<SignInFormData>({
     defaultValues: {
       email: '',
@@ -390,7 +388,7 @@ export function SignInScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography }) => ({
   container: {
     flex: 1,
   },
@@ -401,109 +399,109 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   header: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm * 1.5,
     borderBottomWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
   },
   backButton: {
-    padding: 8,
+    padding: spacing.sm,
   },
   headerTitle: {
     flex: 1,
     alignItems: 'center',
   },
   headerTitleText: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
   },
   headerSpacer: {
-    width: 40,
+    width: spacing.xs * 10,
   },
   formContainer: {
     flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 24,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
   },
   title: {
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   subtitle: {
-    marginBottom: 32,
-    fontSize: 16,
+    marginBottom: spacing['2xl'],
+    fontSize: typography.fontSize.base,
   },
   signInRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 24,
-    gap: 12,
+    marginTop: spacing.lg,
+    gap: spacing.sm * 1.5,
   },
   signInButton: {
     flex: 1,
   },
   biometricButton: {
-    width: 52,
-    height: 52,
+    width: spacing.xs * 13,
+    height: spacing.xs * 13,
     borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   forgotPassword: {
     alignSelf: 'center',
-    marginTop: 24,
-    padding: 8,
+    marginTop: spacing.lg,
+    padding: spacing.sm,
   },
   forgotPasswordText: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
   },
   dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 24,
+    marginVertical: spacing.lg,
   },
   dividerLine: {
     flex: 1,
     height: 1,
   },
   dividerText: {
-    marginHorizontal: 12,
-    fontSize: 12,
+    marginHorizontal: spacing.sm * 1.5,
+    fontSize: typography.fontSize.xs,
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: spacing.xs / 4,
   },
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.4)',
-    paddingHorizontal: 32,
+    paddingHorizontal: spacing['2xl'],
   },
   modalContent: {
     width: '100%',
-    padding: 24,
+    padding: spacing.lg,
     alignItems: 'center',
   },
   modalIcon: {
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 8,
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.semibold,
+    marginBottom: spacing.sm,
   },
   modalDescription: {
-    fontSize: 14,
+    fontSize: typography.fontSize.sm,
     textAlign: 'center',
-    marginBottom: 24,
-    lineHeight: 20,
+    marginBottom: spacing.lg,
+    lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
   },
   modalButtons: {
     width: '100%',
-    gap: 10,
+    gap: spacing.xs * 2.5,
   },
   modalButton: {
     width: '100%',
   },
-});
+}));

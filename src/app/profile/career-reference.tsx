@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
 import {
-  StyleSheet,
   View,
   Pressable,
   ScrollView,
@@ -15,7 +14,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui';
 import { Loader } from '@/components/Loader';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import {
   useGetAccountQuery,
   useGetCareerReferenceTextQuery,
@@ -25,6 +24,7 @@ import { ToastService } from '@/services';
 
 export default function CareerReferenceScreen() {
   const { colors, palette, spacing, shapes } = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
@@ -241,57 +241,57 @@ export default function CareerReferenceScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography, shapes }) => ({
   container: {
     flex: 1,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm * 1.5,
     borderBottomWidth: 1,
   },
   backButton: {
-    padding: 8,
+    padding: spacing.sm,
   },
   headerTitle: {
     flex: 1,
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
     textAlign: 'center',
-    marginRight: 40,
+    marginRight: spacing.xs * 10,
   },
   headerSpacer: {
     width: 0,
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingHorizontal: spacing.xs * 5,
+    paddingTop: spacing.xs * 5,
   },
   referenceCard: {
-    padding: 20,
+    padding: spacing.xs * 5,
   },
   paragraph: {
-    fontSize: 15,
-    lineHeight: 22,
-    marginBottom: 12,
+    fontSize: typography.fontSize.sm,
+    lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
+    marginBottom: spacing.sm * 1.5,
   },
   bold: {
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
   },
   universityRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 20,
-    paddingHorizontal: 4,
+    marginTop: spacing.xs * 5,
+    paddingHorizontal: spacing.xs,
   },
   universityAvatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: spacing.xs * 12.5,
+    height: spacing.xs * 12.5,
+    borderRadius: shapes.radius.full,
     borderWidth: 1,
-    marginRight: 12,
+    marginRight: spacing.sm * 1.5,
   },
   universityAvatarPlaceholder: {
     justifyContent: 'center',
@@ -301,11 +301,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   universityName: {
-    fontSize: 15,
-    fontWeight: '600',
-    marginBottom: 2,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
+    marginBottom: spacing.xs / 2,
   },
   verifiedText: {
-    fontSize: 13,
+    fontSize: typography.fontSize.sm,
   },
-});
+}));

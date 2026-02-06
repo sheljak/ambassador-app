@@ -3,7 +3,7 @@
  * Based on mobile-application/src/services/client.ts
  */
 
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosError, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
 import { getBackendUrl, getBackendUrlV2 } from '../settings';
 
 // Store reference for getting token - will be set by store

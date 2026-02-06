@@ -1,6 +1,5 @@
 import React, { useCallback, useState, useRef } from 'react';
 import {
-  StyleSheet,
   View,
   Pressable,
   ScrollView,
@@ -17,7 +16,7 @@ import { useForm } from 'react-hook-form';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { FormInput, Button } from '@/components/ui';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import {
   useGetPasswordLetterMutation,
   useSetPasswordMutation,
@@ -34,6 +33,7 @@ const CODE_LENGTH = 6;
 
 export default function ChangePasswordScreen() {
   const { colors, palette, spacing, shapes } = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
@@ -225,7 +225,7 @@ export default function ChangePasswordScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography }) => ({
   container: {
     flex: 1,
   },
@@ -235,52 +235,52 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm * 1.5,
     borderBottomWidth: 1,
   },
   backButton: {
-    padding: 8,
+    padding: spacing.sm,
   },
   headerTitle: {
     flex: 1,
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
     textAlign: 'center',
-    marginRight: 40,
+    marginRight: spacing.xs * 10,
   },
   headerSpacer: {
     width: 0,
   },
   scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 24,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
   },
   formSection: {
-    gap: 4,
+    gap: spacing.xs,
   },
   codeSection: {
     alignItems: 'center',
-    paddingTop: 20,
+    paddingTop: spacing.xs * 5,
   },
   codeTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    marginBottom: 6,
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
+    marginBottom: spacing.xs * 1.5,
   },
   codeSubtitle: {
-    fontSize: 14,
-    marginBottom: 24,
+    fontSize: typography.fontSize.sm,
+    marginBottom: spacing.lg,
   },
   codeInputContainer: {
     width: '100%',
   },
   codeInput: {
-    fontSize: 24,
-    fontWeight: '600',
+    fontSize: typography.fontSize['2xl'],
+    fontWeight: typography.fontWeight.semibold,
     borderWidth: 1,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    minHeight: 56,
+    paddingVertical: spacing.xs * 3.5,
+    paddingHorizontal: spacing.md,
+    minHeight: spacing.xs * 14,
   },
-});
+}));

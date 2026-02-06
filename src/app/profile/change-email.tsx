@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import {
-  StyleSheet,
   View,
   Pressable,
   ScrollView,
@@ -16,7 +15,7 @@ import { useForm } from 'react-hook-form';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { FormInput, Button, Input } from '@/components/ui';
-import { useTheme } from '@/theme';
+import { useTheme, createStyles } from '@/theme';
 import {
   useGetEmailLetterMutation,
   useSetEmailMutation,
@@ -31,7 +30,8 @@ interface EmailFormData {
 const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,16}$/i;
 
 export default function ChangeEmailScreen() {
-  const { colors, palette, spacing, shapes } = useTheme();
+  const { colors, palette, spacing } = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
@@ -226,7 +226,7 @@ export default function ChangeEmailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing, typography, shapes }) => ({
   container: {
     flex: 1,
   },
@@ -236,51 +236,51 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm * 1.5,
     borderBottomWidth: 1,
   },
   backButton: {
-    padding: 8,
+    padding: spacing.sm,
   },
   headerTitle: {
     flex: 1,
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
     textAlign: 'center',
-    marginRight: 40,
+    marginRight: spacing.xs * 10,
   },
   headerSpacer: {
     width: 0,
   },
   scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 24,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
   },
   iconSection: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: spacing.xs * 5,
   },
   iconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: spacing.xs * 20,
+    height: spacing.xs * 20,
+    borderRadius: shapes.radius.full,
     justifyContent: 'center',
     alignItems: 'center',
   },
   description: {
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: typography.fontSize.sm,
+    lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: spacing.lg,
   },
   emailHint: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: spacing.xs * 5,
   },
   formContainer: {
-    gap: 4,
+    gap: spacing.xs,
   },
-});
+}));

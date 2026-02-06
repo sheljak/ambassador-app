@@ -134,7 +134,7 @@ export const AuthStorageService = {
     try {
       const token = await AsyncStorage.getItem(STORAGE_KEYS.TOKEN);
       return !!token;
-    } catch (error) {
+    } catch {
       return false;
     }
   },

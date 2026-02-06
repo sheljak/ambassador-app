@@ -1,3 +1,5 @@
+import type { User } from '../../types_that_will_used';
+
 /**
  * Shared types - Re-exports common types from the main API types file
  */
@@ -16,12 +18,7 @@ export type {
   UserTagItem,
   UserAdditionalData,
   UniversityPermission,
-  Dialog,
-  Message,
 } from '../../types_that_will_used';
-
-// Import User for use in local types
-import type { User } from '../../types_that_will_used';
 
 // Additional local types that may be needed
 export interface Tag {

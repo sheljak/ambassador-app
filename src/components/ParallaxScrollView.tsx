@@ -1,5 +1,4 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import { StyleSheet } from 'react-native';
 import Animated, {
   interpolate,
   useAnimatedRef,
@@ -10,8 +9,9 @@ import Animated, {
 import { ThemedView } from '@/components/ThemedView';
 import { useBottomTabOverflow } from '@/components/ui/TabBarBackground';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { createStyles, spacing as spacingTokens } from '@/theme';
 
-const HEADER_HEIGHT = 250;
+const HEADER_HEIGHT = spacingTokens.xs * 62.5;
 
 type Props = PropsWithChildren<{
   headerImage: ReactElement;
@@ -23,6 +23,7 @@ export default function ParallaxScrollView({
   headerImage,
   headerBackgroundColor,
 }: Props) {
+  const styles = useStyles();
   const colorScheme = useColorScheme() ?? 'light';
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useScrollViewOffset(scrollRef);
@@ -65,7 +66,7 @@ export default function ParallaxScrollView({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ spacing }) => ({
   container: {
     flex: 1,
   },
@@ -75,8 +76,8 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 32,
-    gap: 16,
+    padding: spacing['2xl'],
+    gap: spacing.md,
     overflow: 'hidden',
   },
-});
+}));
